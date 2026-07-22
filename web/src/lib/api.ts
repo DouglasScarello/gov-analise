@@ -60,22 +60,25 @@ export type Votacao = {
 
 export type OrgaoSiafi = { codigo: string; descricao: string };
 
-export type PoliticoMunicipal = {
-  SQ_CANDIDATO: string;
-  NM_CANDIDATO: string;
-  NM_URNA_CANDIDATO: string;
-  SG_PARTIDO: string;
-  SG_UF: string;
-  NM_UE: string;
-  DS_CARGO: string;
-  DS_SIT_TOT_TURNO: string;
+export type Nivel = "federal" | "nacional" | "estadual" | "municipal";
+
+export type TipoCargo = { nivel: Nivel; cargo: string; label: string };
+
+export type PoliticoCargo = {
+  id: string;
+  nivel: Nivel;
+  cargo: string;
+  nome: string;
+  nome_urna?: string | null;
+  partido?: string | null;
+  uf?: string | null;
+  municipio?: string | null;
+  foto?: string | null;
+  ano?: string | null;
 };
 
-export type PoliticoMunicipalDetalhe = PoliticoMunicipal & {
-  DS_GENERO?: string;
-  DS_OCUPACAO?: string;
-  DS_GRAU_INSTRUCAO?: string;
-  ANO_ELEICAO?: string;
+export type PoliticoCargoDetalhe = Record<string, unknown> & {
+  nivel: Nivel;
   sancoesVinculadas: Sancao[];
 };
 
@@ -102,22 +105,6 @@ export function buscar(q: string): Promise<BuscaResultado> {
   return apiFetch(`/busca?q=${encodeURIComponent(q)}`, 0);
 }
 
-export function listarPessoas(params: {
-  nome?: string;
-  casa?: string;
-  partido?: string;
-  uf?: string;
-  limit?: number;
-  offset?: number;
-}): Promise<Pessoa[]> {
-  const qs = new URLSearchParams(
-    Object.entries(params)
-      .filter(([, v]) => v !== undefined && v !== "")
-      .map(([k, v]) => [k, String(v)])
-  );
-  return apiFetch(`/pessoas?${qs.toString()}`, 0);
-}
-
 export function obterPessoa(slug: string): Promise<PessoaDetalhe> {
   return apiFetch(`/pessoas/${encodeURIComponent(slug)}`);
 }
@@ -136,24 +123,35 @@ export function listarContratos(params: { orgao?: string; fornecedor?: string } 
   return apiFetch(`/contratos?${qs.toString()}`);
 }
 
-export function listarPoliticosMunicipais(params: {
+export function listarTiposDeCargo(): Promise<TipoCargo[]> {
+  return apiFetch(`/cargos/tipos`);
+}
+
+export async function listarAnosDisponiveis(): Promise<number[]> {
+  const { anos } = await apiFetch<{ anos: number[] }>(`/cargos/anos`);
+  return anos;
+}
+
+export function listarPoliticosCargo(params: {
+  nivel: Nivel;
+  cargo?: string;
   uf?: string;
   municipio?: string;
-  cargo?: string;
   nome?: string;
+  ano?: number;
   limit?: number;
   offset?: number;
-}): Promise<PoliticoMunicipal[]> {
+}): Promise<PoliticoCargo[]> {
   const qs = new URLSearchParams(
     Object.entries(params)
       .filter(([, v]) => v !== undefined && v !== "")
       .map(([k, v]) => [k, String(v)])
   );
-  return apiFetch(`/municipais/politicos?${qs.toString()}`, 0);
+  return apiFetch(`/cargos/politicos?${qs.toString()}`, 0);
 }
 
-export function obterPoliticoMunicipal(sqCandidato: string): Promise<PoliticoMunicipalDetalhe> {
-  return apiFetch(`/municipais/politicos/${encodeURIComponent(sqCandidato)}`);
+export function obterPoliticoCargo(nivel: Nivel, id: string): Promise<PoliticoCargoDetalhe> {
+  return apiFetch(`/cargos/politicos/${nivel}/${encodeURIComponent(id)}`);
 }
 
 export const UFS = [
