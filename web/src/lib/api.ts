@@ -60,6 +60,25 @@ export type Votacao = {
 
 export type OrgaoSiafi = { codigo: string; descricao: string };
 
+export type PoliticoMunicipal = {
+  SQ_CANDIDATO: string;
+  NM_CANDIDATO: string;
+  NM_URNA_CANDIDATO: string;
+  SG_PARTIDO: string;
+  SG_UF: string;
+  NM_UE: string;
+  DS_CARGO: string;
+  DS_SIT_TOT_TURNO: string;
+};
+
+export type PoliticoMunicipalDetalhe = PoliticoMunicipal & {
+  DS_GENERO?: string;
+  DS_OCUPACAO?: string;
+  DS_GRAU_INSTRUCAO?: string;
+  ANO_ELEICAO?: string;
+  sancoesVinculadas: Sancao[];
+};
+
 export type BuscaResultado = {
   termo: string;
   pessoas: Pessoa[];
@@ -88,11 +107,15 @@ export function listarPessoas(params: {
   casa?: string;
   partido?: string;
   uf?: string;
+  limit?: number;
+  offset?: number;
 }): Promise<Pessoa[]> {
   const qs = new URLSearchParams(
-    Object.entries(params).filter(([, v]) => !!v) as [string, string][]
+    Object.entries(params)
+      .filter(([, v]) => v !== undefined && v !== "")
+      .map(([k, v]) => [k, String(v)])
   );
-  return apiFetch(`/pessoas?${qs.toString()}`);
+  return apiFetch(`/pessoas?${qs.toString()}`, 0);
 }
 
 export function obterPessoa(slug: string): Promise<PessoaDetalhe> {
@@ -112,3 +135,28 @@ export function listarContratos(params: { orgao?: string; fornecedor?: string } 
   );
   return apiFetch(`/contratos?${qs.toString()}`);
 }
+
+export function listarPoliticosMunicipais(params: {
+  uf?: string;
+  municipio?: string;
+  cargo?: string;
+  nome?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<PoliticoMunicipal[]> {
+  const qs = new URLSearchParams(
+    Object.entries(params)
+      .filter(([, v]) => v !== undefined && v !== "")
+      .map(([k, v]) => [k, String(v)])
+  );
+  return apiFetch(`/municipais/politicos?${qs.toString()}`, 0);
+}
+
+export function obterPoliticoMunicipal(sqCandidato: string): Promise<PoliticoMunicipalDetalhe> {
+  return apiFetch(`/municipais/politicos/${encodeURIComponent(sqCandidato)}`);
+}
+
+export const UFS = [
+  "AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT",
+  "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO",
+];

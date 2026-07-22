@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .db import WAREHOUSE_PATH
-from .routers import busca, contratos, indicadores, pessoas, sancoes
+from .routers import busca, contratos, indicadores, municipais, pessoas, sancoes
 
 app = FastAPI(
     title="Câmara Analytics API",
@@ -29,6 +29,7 @@ app.include_router(sancoes.router)
 app.include_router(contratos.router)
 app.include_router(busca.router)
 app.include_router(indicadores.router)
+app.include_router(municipais.router)
 
 
 @app.get("/", tags=["health"])
