@@ -41,6 +41,12 @@ export default function RootLayout({
             <Link href="/" className="text-lg font-semibold tracking-tight">
               Gov<span className="text-blue-600">Analise</span>
             </Link>
+            <Link
+              href="/politicos"
+              className="rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
+            >
+              Políticos
+            </Link>
           </div>
         </header>
         <main className="flex-1">{children}</main>
