@@ -1,0 +1,28 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Poetry / Venvs
+.venv/
+venv/
+.env
+
+# Outputs dos módulos
+outputs/
+modules/legis_notifier/last_id.json
+
+# Dados coletados e warehouse (regeneráveis via módulos *_tracker + etl/build_warehouse)
+data/raw/
+data/warehouse/
+data/cache/
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.log
