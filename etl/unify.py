@@ -69,6 +69,16 @@ def unificar_entidades_sancionadas(ceis: pd.DataFrame, cnep: pd.DataFrame) -> pd
     return pd.concat(partes, ignore_index=True)
 
 
+def unificar_tse_candidatos_geral(anos: list[pd.DataFrame]) -> pd.DataFrame:
+    """Concatena os candidatos de várias eleições gerais (presidente/governador/
+    senador/deputado) em uma única tabela, com ANO_ELEICAO como coluna de
+    partição — permite filtrar por ano ou olhar o histórico completo."""
+    partes = [df for df in anos if not df.empty]
+    if not partes:
+        return pd.DataFrame()
+    return pd.concat(partes, ignore_index=True)
+
+
 def unificar_contratos_publicos(compras: pd.DataFrame, transparencia: pd.DataFrame) -> pd.DataFrame:
     """União de contratações do Compras.gov.br (PNCP) + contratos do Portal da Transparência,
     com colunas padronizadas para consulta única."""
