@@ -54,6 +54,12 @@ export default async function RootLayout({
               >
                 Políticos
               </Link>
+              <Link
+                href="/economia"
+                className="rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
+              >
+                Economia
+              </Link>
               <ThemeToggle temaInicial={tema} />
             </div>
           </div>

@@ -161,6 +161,33 @@ export function obterPoliticoCargo(nivel: Nivel, id: string): Promise<PoliticoCa
   return apiFetch(`/cargos/politicos/${nivel}/${encodeURIComponent(id)}`);
 }
 
+export type SerieEconomica = {
+  data: string;
+  valor: number;
+  serie: string;
+  codigoSgs: number;
+};
+
+export type IndicadorUf = {
+  recurso: string;
+  variavel: string;
+  unidade: string | null;
+  localidadeId: string;
+  localidadeNome: string;
+  periodo: string;
+  valor: number;
+};
+
+export function listarSeriesEconomicas(serie?: string): Promise<SerieEconomica[]> {
+  const qs = serie ? `?serie=${encodeURIComponent(serie)}` : "";
+  return apiFetch(`/economia/series${qs}`);
+}
+
+export function listarIndicadoresUf(recurso?: string): Promise<IndicadorUf[]> {
+  const qs = recurso ? `?recurso=${encodeURIComponent(recurso)}` : "";
+  return apiFetch(`/indicadores/uf${qs}`);
+}
+
 export const UFS = [
   "AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT",
   "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO",
