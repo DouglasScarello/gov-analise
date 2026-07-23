@@ -127,8 +127,8 @@ export function listarTiposDeCargo(): Promise<TipoCargo[]> {
   return apiFetch(`/cargos/tipos`);
 }
 
-export async function listarAnosDisponiveis(): Promise<number[]> {
-  const { anos } = await apiFetch<{ anos: number[] }>(`/cargos/anos`);
+export async function listarAnosDisponiveis(nivel: Nivel): Promise<number[]> {
+  const { anos } = await apiFetch<{ anos: number[] }>(`/cargos/anos?nivel=${nivel}`);
   return anos;
 }
 

@@ -24,7 +24,7 @@ const NIVEL_DESCRICAO: Record<Nivel, string> = {
   federal: "Deputados federais e senadores em exercício.",
   estadual: "Governadores, vice-governadores e deputados estaduais/distritais eleitos de 1994 a 2022.",
   nacional: "Presidente e vice-presidente eleitos de 1994 a 2022.",
-  municipal: "Prefeitos, vice-prefeitos e vereadores eleitos em 2024.",
+  municipal: "Prefeitos, vice-prefeitos e vereadores eleitos de 1996 a 2024.",
 };
 
 const NIVEL_TEM_UF: Record<Nivel, boolean> = {
@@ -38,7 +38,7 @@ const NIVEL_TEM_ANO: Record<Nivel, boolean> = {
   federal: false,
   estadual: true,
   nacional: true,
-  municipal: false,
+  municipal: true,
 };
 
 const NIVEL_AVISO: Partial<Record<Nivel, string>> = {
@@ -46,6 +46,8 @@ const NIVEL_AVISO: Partial<Record<Nivel, string>> = {
     "Vice-presidentes eleitos antes de 2014 não aparecem: o TSE não registrou a situação de eleição desse cargo nessas eleições, e não há como ligar o vice à chapa vencedora com segurança. A eleição de 2006 também não tem resultado de presidente/vice-presidente disponível na fonte.",
   estadual:
     "Vice-governadores eleitos antes de 2014 não aparecem pelo mesmo motivo: o TSE não registrou a situação de eleição desse cargo nessas eleições. Governadores e deputados estaduais/distritais não têm essa lacuna.",
+  municipal:
+    "Vice-prefeitos eleitos antes de 2012 não aparecem: o TSE não registrou a situação de eleição desse cargo nas eleições de 1996 a 2008. Prefeitos e vereadores não têm essa lacuna em nenhum ano.",
 };
 
 function ehNivel(v: string | undefined): v is Nivel {
@@ -77,7 +79,7 @@ export default async function PoliticosPage({
   const tipos = await listarTiposDeCargo();
   const cargosDoNivel = tipos.filter((t) => t.nivel === nivel);
   const temAno = NIVEL_TEM_ANO[nivel];
-  const anosDisponiveis = temAno ? await listarAnosDisponiveis() : [];
+  const anosDisponiveis = temAno ? await listarAnosDisponiveis(nivel) : [];
 
   const precisaUf = NIVEL_TEM_UF[nivel] && nivel !== "federal";
   const pessoas =

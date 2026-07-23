@@ -71,25 +71,36 @@ em `data/raw/tse/<recurso>/`. Anos já coletados:
 
 - **Eleições gerais** (presidente, governador, senador, dep. federal/estadual) —
   recurso `candidatos_<ano>`: **1994, 1998, 2002, 2006, 2010, 2014, 2018, 2022**
-- **Eleição municipal** (prefeito, vice-prefeito, vereador) — recurso `candidatos`
-  (sem sufixo, é o default): **só 2024** coletado. 1996-2020 ainda faltam.
+- **Eleições municipais** (prefeito, vice-prefeito, vereador) — recurso
+  `candidatos_<ano>` para 1996-2020, e `candidatos` (sem sufixo, é o default) para
+  2024: **1996, 2000, 2004, 2008, 2012, 2016, 2020, 2024** — todos os anos
+  municipais desde a redemocratização.
 
-Para coletar mais um ano de eleição geral:
+Para coletar mais um ano (geral ou municipal):
 ```python
 from modules.tse_tracker.collector import collect_candidatos
 collect_candidatos(ANO, f"candidatos_{ANO}")
 ```
-depois adicionar `ANO` em `ANOS_ELEICAO_GERAL` (em `etl/build_warehouse.py` e em
-`api/routers/cargos.py`) e rodar `poetry run python -m etl.build_warehouse` de novo.
+depois adicionar `ANO` em `ANOS_ELEICAO_GERAL`/`ANOS_ELEICAO_MUNICIPAL` (em
+`etl/build_warehouse.py` e em `api/routers/cargos.py`) e rodar
+`poetry run python -m etl.build_warehouse` de novo.
+
+**Nota**: o pacote CKAN de 2020 tem nome irregular (`candidatos-2020-subtemas`, não
+`candidatos-2020`) — `modules/tse_tracker/extractor.py::get_candidatos` já trata
+esse fallback automaticamente.
 
 ## Warehouse (tabelas principais)
 
 - `pessoas_politicas` (593) — Câmara+Senado, mandato atual, casado por nome
 - `entidades_sancionadas` (600) — CEIS+CNEP unificados
 - `contratos_publicos` (16.557) — Compras.gov.br + Portal da Transparência
-- `stg_tse_candidatos` (463.833) — TSE 2024, municipal
+- `stg_tse_candidatos` (463.833) — TSE 2024, municipal (tabela legada, mantida
+  para o router `municipais.py`)
 - `stg_tse_candidatos_geral` (171.988) — TSE 1994-2022 concatenado, com
-  `ANO_ELEICAO` — usada pelos níveis nacional/estadual da API
+  `ANO_ELEICAO` — usada pelo nível nacional/estadual da API `cargos.py`
+- `stg_tse_candidatos_municipal_geral` (3.510.250) — TSE 1996-2024 concatenado
+  (prefeito/vice-prefeito/vereador), com `ANO_ELEICAO` — usada pelo nível
+  municipal da API `cargos.py`
 - `stg_camara_deputados`, `stg_senado_senadores`, `stg_senado_processos`,
   `stg_senado_votacoes`, `stg_bacen_series`, `stg_siconfi_entes`,
   `stg_siconfi_dca`, `stg_ibge_indicadores_uf`, `stg_compras_contratacoes`,
@@ -110,11 +121,15 @@ depois adicionar `ANO` em `ANOS_ELEICAO_GERAL` (em `etl/build_warehouse.py` e em
 `nivel` em `cargos.py`: `federal` (Câmara/Senado atual, via `pessoas_politicas`),
 `nacional` (presidente/vice, via `stg_tse_candidatos_geral`), `estadual`
 (governador/vice/dep. estadual/distrital, mesma tabela), `municipal` (prefeito/
-vice/vereador, via `stg_tse_candidatos`, só 2024).
+vice/vereador, via `stg_tse_candidatos_municipal_geral`, 1996-2024).
 
-**Detalhe importante**: nacional/estadual usam id composto `"<ano>-<sq_candidato>"`
-porque `SQ_CANDIDATO` do TSE **se repete entre anos diferentes** (não é chave
-global). Municipal usa `SQ_CANDIDATO` puro (só um ano coletado, é único ali).
+**Detalhe importante**: os três níveis baseados em TSE (nacional/estadual/
+municipal) usam id composto `"<ano>-<sq_candidato>"` porque `SQ_CANDIDATO` do
+TSE **se repete entre anos diferentes** (não é chave global).
+
+`GET /cargos/anos?nivel=` retorna os anos coletados por nível: `nacional`/
+`estadual` → 1994-2022 (eleição geral); `municipal` → 1996-2024 (eleição
+municipal, ano-base diferente pois municipal é sempre par não-múltiplo de 4).
 
 ## Frontend (`web/`, roda em `npm --prefix web run dev`, porta 3000)
 
@@ -123,7 +138,7 @@ global). Municipal usa `SQ_CANDIDATO` puro (só um ano coletado, é único ali).
 - `/politico/[slug]` — detalhe de deputado/senador (via `/pessoas/{slug}`, legado)
 - `/politicos` — **página principal de navegação**: abas Federal/Estadual/Nacional/
   Municipal, filtro de cargo, filtro de UF (quando aplicável), filtro de ano
-  (nacional/estadual, 1994-2022), cards clicáveis
+  (nacional/estadual: 1994-2022; municipal: 1996-2024), cards clicáveis
 - `/cargo/[nivel]/[id]` — página de detalhe **unificada** para todos os níveis
   (usa `/cargos/politicos/{nivel}/{id}`)
 
@@ -143,22 +158,25 @@ valor antigo, apagar essa pasta resolve.
    validado contra os 27 governadores eleitos por ano de 1994-2010) — não confiável
    o bastante pra usar sem risco de atribuir errado. **Não implementado de
    propósito.**
-2. **2006, presidente/vice-presidente**: TSE não tem resultado nenhum registrado
+2. **Vice-prefeito eleito antes de 2012** tem a mesma lacuna (corte diferente:
+   2012, não 2014). Confirmado nas eleições municipais de 1996, 2000, 2004 e
+   2008 — `DS_SIT_TOT_TURNO` vem `#NULO`/`#NULO#` pra todo mundo. Prefeito e
+   vereador não têm essa lacuna em nenhum ano.
+3. **2006, presidente/vice-presidente**: TSE não tem resultado nenhum registrado
    pra esse ano específico (só esse cargo, nesse ano).
-3. **Só político de nível federal tem foto** (vem da API Câmara/Senado). TSE não
+4. **Só político de nível federal tem foto** (vem da API Câmara/Senado). TSE não
    tem foto.
-4. **Câmara/Senado só mostram mandato atual**, não histórico de legislaturas.
-5. **Eleição municipal só tem 2024 coletado** (1996-2020 faltam).
+5. **Câmara/Senado só mostram mandato atual**, não histórico de legislaturas.
 6. **Cruzamento de sanções é por nome normalizado, não CPF** (CPF vem mascarado
    nas bases públicas do TSE) — risco de homônimos.
 
 ## Tarefas que ficaram pendentes / próximos passos possíveis
 
-- [ ] Coletar eleições municipais de 1996 a 2020 (mesmo padrão do 2024, outro
-      `recurso` por ano)
-- [ ] Avaliar se dá pra linkar vice-presidente/vice-governador pré-2014 usando
-      outro dataset do TSE (ex: `consulta_vagas` ou resultado oficial por chapa,
-      em vez do arquivo de candidatos)
+- [x] ~~Coletar eleições municipais de 1996 a 2020~~ — feito, todos os anos de
+      1996 a 2024 estão coletados e unificados em `stg_tse_candidatos_municipal_geral`.
+- [ ] Avaliar se dá pra linkar vice-presidente/vice-governador/vice-prefeito
+      pré-corte usando outro dataset do TSE (ex: `consulta_vagas` ou resultado
+      oficial por chapa, em vez do arquivo de candidatos)
 - [ ] Histórico de legislaturas de Câmara/Senado (a API deles suporta consulta por
       legislatura, não só a atual)
 - [ ] `municipal_tracker` (módulo pré-existente) ainda não foi integrado ao
