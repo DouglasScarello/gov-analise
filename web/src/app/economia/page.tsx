@@ -1,6 +1,7 @@
 import SerieLineChart from "@/components/charts/SerieLineChart";
 import UfBarChart from "@/components/charts/UfBarChart";
 import { listarIndicadoresUf, listarSeriesEconomicas } from "@/lib/api";
+import { SIGLA_POR_ESTADO } from "@/lib/estados";
 
 const SERIES = [
   { chave: "selic_meta", titulo: "Selic (meta)", unidade: "% a.a." },
@@ -19,36 +20,6 @@ const INDICADORES_UF = [
   { chave: "pib_uf", titulo: "PIB por estado", unidade: "" },
   { chave: "populacao_estimada_uf", titulo: "População estimada por estado", unidade: "" },
 ] as const;
-
-const SIGLA_POR_ESTADO: Record<string, string> = {
-  Acre: "AC",
-  Alagoas: "AL",
-  Amapá: "AP",
-  Amazonas: "AM",
-  Bahia: "BA",
-  Ceará: "CE",
-  "Distrito Federal": "DF",
-  "Espírito Santo": "ES",
-  Goiás: "GO",
-  Maranhão: "MA",
-  "Mato Grosso": "MT",
-  "Mato Grosso do Sul": "MS",
-  "Minas Gerais": "MG",
-  Pará: "PA",
-  Paraíba: "PB",
-  Paraná: "PR",
-  Pernambuco: "PE",
-  Piauí: "PI",
-  "Rio de Janeiro": "RJ",
-  "Rio Grande do Norte": "RN",
-  "Rio Grande do Sul": "RS",
-  Rondônia: "RO",
-  Roraima: "RR",
-  "Santa Catarina": "SC",
-  "São Paulo": "SP",
-  Sergipe: "SE",
-  Tocantins: "TO",
-};
 
 export default async function EconomiaPage() {
   const [series, indicadores] = await Promise.all([
@@ -85,7 +56,7 @@ export default async function EconomiaPage() {
           const registros = indicadores[i];
           const ultimoPeriodo = registros.reduce(
             (max, r) => (r.periodo > max ? r.periodo : max),
-            registros[0]?.periodo ?? ""
+            registros[0]?.periodo ?? 0
           );
           const itens = registros
             .filter((r) => r.periodo === ultimoPeriodo)

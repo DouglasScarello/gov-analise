@@ -43,35 +43,43 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
         <header className="border-b border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
-          <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
-            <Link href="/" className="text-lg font-semibold tracking-tight">
+          <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3">
+            <Link href="/" className="shrink-0 text-lg font-semibold tracking-tight">
               Gov<span className="text-blue-600">Analise</span>
             </Link>
-            <div className="flex items-center gap-2">
+            <div className="flex min-w-0 items-center gap-2 overflow-x-auto">
               <Link
                 href="/politicos"
-                className="rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
+                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
               >
                 Políticos
               </Link>
               <Link
                 href="/economia"
-                className="rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
+                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
               >
                 Economia
               </Link>
               <Link
                 href="/sancoes"
-                className="rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
+                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
               >
                 Sanções
               </Link>
               <Link
                 href="/contratos"
-                className="rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
+                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
               >
                 Contratos
               </Link>
+              <Link
+                href="/estados"
+                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
+              >
+                Estados
+              </Link>
+            </div>
+            <div className="shrink-0">
               <ThemeToggle temaInicial={tema} />
             </div>
           </div>

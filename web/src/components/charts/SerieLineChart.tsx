@@ -12,12 +12,19 @@ import {
 
 type Ponto = { data: string; valor: number };
 
+const formatarCompacto = new Intl.NumberFormat("pt-BR", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+}).format;
+
 function formatarData(iso: string) {
+  if (!iso.includes("-")) return iso;
   const [ano, mes] = iso.split("-");
   return `${mes}/${ano.slice(2)}`;
 }
 
 function formatarDataCompleta(iso: string) {
+  if (!iso.includes("-")) return iso;
   const [ano, mes, dia] = iso.split("-");
   return `${dia.slice(0, 2)}/${mes}/${ano}`;
 }
@@ -66,6 +73,7 @@ export default function SerieLineChart({ pontos, unidade }: { pontos: Ponto[]; u
           tick={{ fill: "var(--chart-axis)", fontSize: 12 }}
           axisLine={false}
           tickLine={false}
+          tickFormatter={formatarCompacto}
           width={48}
         />
         <Tooltip content={<CustomTooltip unidade={unidade} />} cursor={{ stroke: "var(--chart-grid)" }} />

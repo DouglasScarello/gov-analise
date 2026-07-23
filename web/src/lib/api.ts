@@ -182,7 +182,7 @@ export type IndicadorUf = {
   unidade: string | null;
   localidadeId: string;
   localidadeNome: string;
-  periodo: string;
+  periodo: number;
   valor: number;
 };
 
@@ -194,6 +194,21 @@ export function listarSeriesEconomicas(serie?: string): Promise<SerieEconomica[]
 export function listarIndicadoresUf(recurso?: string): Promise<IndicadorUf[]> {
   const qs = recurso ? `?recurso=${encodeURIComponent(recurso)}` : "";
   return apiFetch(`/indicadores/uf${qs}`);
+}
+
+export type ContaBalanco = {
+  exercicio: number;
+  siglaEnte: string;
+  cod_ibge: number;
+  uf: string;
+  cod_conta: string;
+  conta: string;
+  valor: number;
+  populacao: number;
+};
+
+export function listarBalanco(siglaEnte: string, limit = 20): Promise<ContaBalanco[]> {
+  return apiFetch(`/financas/balanco?sigla_ente=${encodeURIComponent(siglaEnte)}&limit=${limit}`);
 }
 
 export const UFS = [
