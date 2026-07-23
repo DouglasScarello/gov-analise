@@ -82,9 +82,9 @@ export default async function PoliticosPage({
   const anosDisponiveis = temAno ? await listarAnosDisponiveis(nivel) : [];
 
   const precisaUf = NIVEL_TEM_UF[nivel] && nivel !== "federal";
-  const pessoas =
+  const pagina =
     precisaUf && !uf
-      ? []
+      ? { items: [], total: 0, limit: POR_PAGINA, offset }
       : await listarPoliticosCargo({
           nivel,
           cargo,
@@ -94,6 +94,8 @@ export default async function PoliticosPage({
           limit: POR_PAGINA,
           offset,
         });
+  const pessoas = pagina.items;
+  const temProximaPagina = offset + pessoas.length < pagina.total;
 
   const sufixoUf = uf ? `&uf=${uf}` : "";
   const sufixoAno = ano ? `&ano=${ano}` : "";
@@ -226,8 +228,11 @@ export default async function PoliticosPage({
             ) : (
               <span />
             )}
-            <span className="text-sm text-neutral-500">Página {paginaAtual}</span>
-            {pessoas.length === POR_PAGINA ? (
+            <span className="text-sm text-neutral-500">
+              Página {paginaAtual}
+              {pagina.total > 0 && ` de ${Math.ceil(pagina.total / POR_PAGINA)} (${pagina.total} resultados)`}
+            </span>
+            {temProximaPagina ? (
               <Link
                 href={construirLink({ nivel, cargo, uf, municipio, ano }, paginaAtual + 1)}
                 className="rounded-full border border-neutral-300 px-4 py-2 text-sm hover:border-blue-500 dark:border-neutral-700"

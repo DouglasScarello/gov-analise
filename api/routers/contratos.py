@@ -6,7 +6,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Query
 
-from ..db import query
+from ..db import paginar
 
 router = APIRouter(prefix="/contratos", tags=["contratos"])
 
@@ -41,11 +41,4 @@ def listar_contratos(
         params.append(valor_min)
 
     where = f"WHERE {' AND '.join(condicoes)}" if condicoes else ""
-    sql = f"""
-        SELECT * FROM contratos_publicos
-        {where}
-        ORDER BY data DESC
-        LIMIT ? OFFSET ?
-    """
-    params.extend([limit, offset])
-    return query(sql, params)
+    return paginar("*", f"FROM contratos_publicos {where}", "ORDER BY data DESC", params, limit, offset)

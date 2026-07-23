@@ -6,7 +6,7 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 
-from ..db import query, query_one
+from ..db import paginar, query, query_one
 
 router = APIRouter(prefix="/pessoas", tags=["pessoas"])
 
@@ -37,16 +37,9 @@ def listar_pessoas(
         params.extend([uf, uf])
 
     where = f"WHERE {' AND '.join(condicoes)}" if condicoes else ""
-    sql = f"""
-        SELECT slug, nome, casa, camaraId, camaraPartido, camaraUf, camaraFoto,
-               senadoId, senadoPartido, senadoUf, senadoFoto
-        FROM pessoas_politicas
-        {where}
-        ORDER BY nome
-        LIMIT ? OFFSET ?
-    """
-    params.extend([limit, offset])
-    return query(sql, params)
+    select = """slug, nome, casa, camaraId, camaraPartido, camaraUf, camaraFoto,
+               senadoId, senadoPartido, senadoUf, senadoFoto"""
+    return paginar(select, f"FROM pessoas_politicas {where}", "ORDER BY nome", params, limit, offset)
 
 
 @router.get("/{slug}")

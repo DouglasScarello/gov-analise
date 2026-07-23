@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { cookies } from "next/headers";
 import Link from "next/link";
+import ThemeToggle from "@/components/ThemeToggle";
+import type { Tema } from "./actions";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,15 +28,18 @@ export const viewport: Viewport = {
   themeColor: "#1d4ed8",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const tema: Tema = cookieStore.get("tema")?.value === "escuro" ? "escuro" : "claro";
+
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased ${tema === "escuro" ? "dark" : ""}`}
     >
       <body className="min-h-full flex flex-col bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
         <header className="border-b border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
@@ -41,12 +47,15 @@ export default function RootLayout({
             <Link href="/" className="text-lg font-semibold tracking-tight">
               Gov<span className="text-blue-600">Analise</span>
             </Link>
-            <Link
-              href="/politicos"
-              className="rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
-            >
-              Políticos
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/politicos"
+                className="rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
+              >
+                Políticos
+              </Link>
+              <ThemeToggle temaInicial={tema} />
+            </div>
           </div>
         </header>
         <main className="flex-1">{children}</main>

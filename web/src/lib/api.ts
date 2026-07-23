@@ -82,6 +82,13 @@ export type PoliticoCargoDetalhe = Record<string, unknown> & {
   sancoesVinculadas: Sancao[];
 };
 
+export type Paginated<T> = {
+  items: T[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
 export type BuscaResultado = {
   termo: string;
   pessoas: Pessoa[];
@@ -109,14 +116,14 @@ export function obterPessoa(slug: string): Promise<PessoaDetalhe> {
   return apiFetch(`/pessoas/${encodeURIComponent(slug)}`);
 }
 
-export function listarSancoes(params: { nome?: string } = {}): Promise<Sancao[]> {
+export function listarSancoes(params: { nome?: string } = {}): Promise<Paginated<Sancao>> {
   const qs = new URLSearchParams(
     Object.entries(params).filter(([, v]) => !!v) as [string, string][]
   );
   return apiFetch(`/sancoes?${qs.toString()}`);
 }
 
-export function listarContratos(params: { orgao?: string; fornecedor?: string } = {}): Promise<Contrato[]> {
+export function listarContratos(params: { orgao?: string; fornecedor?: string } = {}): Promise<Paginated<Contrato>> {
   const qs = new URLSearchParams(
     Object.entries(params).filter(([, v]) => !!v) as [string, string][]
   );
@@ -141,7 +148,7 @@ export function listarPoliticosCargo(params: {
   ano?: number;
   limit?: number;
   offset?: number;
-}): Promise<PoliticoCargo[]> {
+}): Promise<Paginated<PoliticoCargo>> {
   const qs = new URLSearchParams(
     Object.entries(params)
       .filter(([, v]) => v !== undefined && v !== "")

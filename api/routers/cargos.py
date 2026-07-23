@@ -26,7 +26,7 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 
-from ..db import query, query_one
+from ..db import paginar, query, query_one
 
 router = APIRouter(prefix="/cargos", tags=["cargos"])
 
@@ -88,7 +88,7 @@ def listar_anos_disponiveis(nivel: str = Query("nacional", description="nacional
     return {"anos": anos}
 
 
-def _listar_federal(cargo: Optional[str], uf: Optional[str], nome: Optional[str], limit: int, offset: int):
+def _listar_federal(cargo: Optional[str], uf: Optional[str], nome: Optional[str], limit: int, offset: int) -> dict:
     condicoes = []
     params: list = []
 
@@ -105,25 +105,20 @@ def _listar_federal(cargo: Optional[str], uf: Optional[str], nome: Optional[str]
         params.append(f"%{nome.upper()}%")
 
     where = f"WHERE {' AND '.join(condicoes)}" if condicoes else ""
-    sql = f"""
-        SELECT slug AS id, nome, casa,
+    from_where = f"FROM pessoas_politicas {where}"
+    select = """slug AS id, nome, casa,
                COALESCE(camaraPartido, senadoPartido) AS partido,
                COALESCE(camaraUf, senadoUf) AS uf,
-               COALESCE(camaraFoto, senadoFoto) AS foto
-        FROM pessoas_politicas
-        {where}
-        ORDER BY nome
-        LIMIT ? OFFSET ?
-    """
-    params.extend([limit, offset])
-    linhas = query(sql, params)
-    for l in linhas:
+               COALESCE(camaraFoto, senadoFoto) AS foto"""
+
+    pagina = paginar(select, from_where, "ORDER BY nome", params, limit, offset)
+    for l in pagina["items"]:
         l["nivel"] = "federal"
         l["cargo"] = cargo or l.pop("casa", None)
-    return linhas
+    return pagina
 
 
-def _listar_tse(nivel: str, cargo: Optional[str], uf: Optional[str], municipio: Optional[str], nome: Optional[str], ano: Optional[int], limit: int, offset: int):
+def _listar_tse(nivel: str, cargo: Optional[str], uf: Optional[str], municipio: Optional[str], nome: Optional[str], ano: Optional[int], limit: int, offset: int) -> dict:
     cfg = NIVEIS[nivel]
     condicoes = [ELEITO]
     params: list = []
@@ -149,25 +144,21 @@ def _listar_tse(nivel: str, cargo: Optional[str], uf: Optional[str], municipio: 
         condicoes.append("nome_normalizado ILIKE ?")
         params.append(f"%{nome.upper()}%")
 
-    # id composto (ano-sq) para nacional/estadual, já que SQ_CANDIDATO se repete
-    # entre eleições diferentes; municipal (um ano só) usa o SQ_CANDIDATO puro.
+    # id composto (ano-sq) para nacional/estadual/municipal, já que SQ_CANDIDATO
+    # se repete entre eleições diferentes.
     id_expr = "ANO_ELEICAO || '-' || SQ_CANDIDATO" if cfg["tem_ano"] else "SQ_CANDIDATO"
 
     where = f"WHERE {' AND '.join(condicoes)}"
-    sql = f"""
-        SELECT {id_expr} AS id, NM_CANDIDATO AS nome, NM_URNA_CANDIDATO AS nome_urna,
+    from_where = f"FROM {cfg['tabela']} {where}"
+    select = f"""{id_expr} AS id, NM_CANDIDATO AS nome, NM_URNA_CANDIDATO AS nome_urna,
                SG_PARTIDO AS partido, SG_UF AS uf, NM_UE AS municipio, DS_CARGO AS cargo,
-               ANO_ELEICAO AS ano
-        FROM {cfg["tabela"]}
-        {where}
-        ORDER BY ANO_ELEICAO DESC, SG_UF, DS_CARGO, NM_CANDIDATO
-        LIMIT ? OFFSET ?
-    """
-    params.extend([limit, offset])
-    linhas = query(sql, params)
-    for l in linhas:
+               ANO_ELEICAO AS ano"""
+    order_by = "ORDER BY ANO_ELEICAO DESC, SG_UF, DS_CARGO, NM_CANDIDATO"
+
+    pagina = paginar(select, from_where, order_by, params, limit, offset)
+    for l in pagina["items"]:
         l["nivel"] = nivel
-    return linhas
+    return pagina
 
 
 @router.get("/politicos")

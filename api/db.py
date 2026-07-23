@@ -48,3 +48,16 @@ def query(sql: str, params: list | None = None) -> list[dict]:
 def query_one(sql: str, params: list | None = None) -> dict | None:
     registros = query(sql, params)
     return registros[0] if registros else None
+
+
+def paginar(select: str, from_where: str, order_by: str, params: list, limit: int, offset: int) -> dict:
+    """Executa uma listagem paginada, retornando o envelope padrão
+    { items, total, limit, offset } usado por todos os endpoints de lista.
+
+    `from_where` é o trecho "FROM tabela [WHERE ...]" compartilhado entre a
+    query de itens e a de contagem total (sem LIMIT/OFFSET).
+    """
+    itens = query(f"SELECT {select} {from_where} {order_by} LIMIT ? OFFSET ?", [*params, limit, offset])
+    total_row = query_one(f"SELECT COUNT(*) AS total {from_where}", params)
+    total = total_row["total"] if total_row else 0
+    return {"items": itens, "total": total, "limit": limit, "offset": offset}

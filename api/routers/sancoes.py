@@ -7,7 +7,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Query
 
-from ..db import query
+from ..db import paginar
 
 router = APIRouter(prefix="/sancoes", tags=["sancoes"])
 
@@ -34,11 +34,4 @@ def listar_sancoes(
         params.append(origem.upper())
 
     where = f"WHERE {' AND '.join(condicoes)}" if condicoes else ""
-    sql = f"""
-        SELECT * FROM entidades_sancionadas
-        {where}
-        ORDER BY dataInicioSancao DESC
-        LIMIT ? OFFSET ?
-    """
-    params.extend([limit, offset])
-    return query(sql, params)
+    return paginar("*", f"FROM entidades_sancionadas {where}", "ORDER BY dataInicioSancao DESC", params, limit, offset)
