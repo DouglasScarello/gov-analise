@@ -127,11 +127,15 @@ export function listarSancoes(
   return apiFetch(`/sancoes?${qs.toString()}`, 0);
 }
 
-export function listarContratos(params: { orgao?: string; fornecedor?: string } = {}): Promise<Paginated<Contrato>> {
+export function listarContratos(
+  params: { orgao?: string; fornecedor?: string; uf?: string; limit?: number; offset?: number } = {}
+): Promise<Paginated<Contrato>> {
   const qs = new URLSearchParams(
-    Object.entries(params).filter(([, v]) => !!v) as [string, string][]
+    Object.entries(params)
+      .filter(([, v]) => v !== undefined && v !== "")
+      .map(([k, v]) => [k, String(v)])
   );
-  return apiFetch(`/contratos?${qs.toString()}`);
+  return apiFetch(`/contratos?${qs.toString()}`, 0);
 }
 
 export function listarTiposDeCargo(): Promise<TipoCargo[]> {
