@@ -7,6 +7,11 @@ function formatarData(iso: string | null) {
   return new Date(iso).toLocaleDateString("pt-BR");
 }
 
+function formatarMoeda(valor: number | null) {
+  if (valor == null) return "valor não informado";
+  return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
 export default async function PoliticoPage({
   params,
 }: {
@@ -82,6 +87,30 @@ export default async function PoliticoPage({
         <p className="mt-2 text-xs text-neutral-400">
           Cruzamento por nome — pode incluir homônimos, já que não há um identificador único
           público entre as fontes.
+        </p>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          Contratos vinculados ao nome
+        </h2>
+        {pessoa.contratosVinculados.length === 0 ? (
+          <p className="text-sm text-neutral-500">Nenhum contrato encontrado com esse nome.</p>
+        ) : (
+          <ul className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+            {pessoa.contratosVinculados.map((c, i) => (
+              <li key={i} className="px-4 py-3">
+                <p className="font-medium">{c.orgaoNome}</p>
+                <p className="text-sm text-neutral-500 line-clamp-2">{c.objeto}</p>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                  {formatarMoeda(c.valor)} · {formatarData(c.data)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-2 text-xs text-neutral-400">
+          Cruzamento por nome do fornecedor — pode incluir homônimos.
         </p>
       </section>
 

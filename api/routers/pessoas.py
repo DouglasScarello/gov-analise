@@ -56,6 +56,10 @@ def detalhe_pessoa(slug: str):
         "SELECT * FROM entidades_sancionadas WHERE sancionadoNome ILIKE ? LIMIT 20",
         [f"%{pessoa['nome']}%"],
     )
+    contratos = query(
+        "SELECT * FROM contratos_publicos WHERE fornecedorNome ILIKE ? ORDER BY data DESC LIMIT 20",
+        [f"%{pessoa['nome']}%"],
+    )
     votacoes = []
     if pessoa.get("senadoId"):
         votacoes = query(
@@ -66,5 +70,6 @@ def detalhe_pessoa(slug: str):
     return {
         **pessoa,
         "sancoesVinculadas": sancoes,
+        "contratosVinculados": contratos,
         "votacoesRecentes": votacoes,
     }

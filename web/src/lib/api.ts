@@ -17,6 +17,7 @@ export type Pessoa = {
 
 export type PessoaDetalhe = Pessoa & {
   sancoesVinculadas: Sancao[];
+  contratosVinculados: Contrato[];
   votacoesRecentes: Votacao[];
 };
 
