@@ -116,11 +116,15 @@ export function obterPessoa(slug: string): Promise<PessoaDetalhe> {
   return apiFetch(`/pessoas/${encodeURIComponent(slug)}`);
 }
 
-export function listarSancoes(params: { nome?: string } = {}): Promise<Paginated<Sancao>> {
+export function listarSancoes(
+  params: { nome?: string; origem?: string; limit?: number; offset?: number } = {}
+): Promise<Paginated<Sancao>> {
   const qs = new URLSearchParams(
-    Object.entries(params).filter(([, v]) => !!v) as [string, string][]
+    Object.entries(params)
+      .filter(([, v]) => v !== undefined && v !== "")
+      .map(([k, v]) => [k, String(v)])
   );
-  return apiFetch(`/sancoes?${qs.toString()}`);
+  return apiFetch(`/sancoes?${qs.toString()}`, 0);
 }
 
 export function listarContratos(params: { orgao?: string; fornecedor?: string } = {}): Promise<Paginated<Contrato>> {
