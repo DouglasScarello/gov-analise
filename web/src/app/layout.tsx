@@ -78,6 +78,12 @@ export default async function RootLayout({
               >
                 Estados
               </Link>
+              <Link
+                href="/legislativo"
+                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
+              >
+                Legislativo
+              </Link>
             </div>
             <div className="shrink-0">
               <ThemeToggle temaInicial={tema} />

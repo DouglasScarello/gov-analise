@@ -7,7 +7,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Query
 
-from ..db import query
+from ..db import paginar, query
 
 router = APIRouter(tags=["indicadores"])
 
@@ -71,6 +71,45 @@ def processos_judiciais(
             [tribunal.upper(), limit],
         )
     return query("SELECT * FROM stg_datajud_processos ORDER BY dataUltimaAtualizacao DESC LIMIT ?", [limit])
+
+
+@router.get("/legislativo/senado/votacoes")
+def votacoes_senado(
+    senador: Optional[str] = Query(None, description="Busca parcial pelo nome do senador"),
+    uf: Optional[str] = None,
+    materiaSigla: Optional[str] = Query(None, description="Ex: PL, PLP, PEC, MSF"),
+    resultado: Optional[str] = Query(None, description="Aprovado | Rejeitado | Prejudicado | Empate"),
+    limit: int = Query(50, le=200),
+    offset: int = Query(0, ge=0),
+):
+    condicoes = []
+    params: list = []
+
+    if senador:
+        condicoes.append("s.nome ILIKE ?")
+        params.append(f"%{senador}%")
+    if uf:
+        condicoes.append("s.siglaUf = ?")
+        params.append(uf.upper())
+    if materiaSigla:
+        condicoes.append("v.materiaSigla = ?")
+        params.append(materiaSigla.upper())
+    if resultado:
+        condicoes.append("v.descricaoResultado = ?")
+        params.append(resultado)
+
+    where = f"WHERE {' AND '.join(condicoes)}" if condicoes else ""
+    from_where = (
+        "FROM stg_senado_votacoes v "
+        "LEFT JOIN stg_senado_senadores s ON s.id = v.codigoSenador "
+        f"{where}"
+    )
+    select = (
+        "v.dataSessao, v.materiaSigla, v.materiaNumero, v.materiaAno, v.materiaEmenta, "
+        "v.descricaoVotacao, v.descricaoResultado, v.voto, "
+        "s.nome AS senadorNome, s.siglaPartido AS senadorPartido, s.siglaUf AS senadorUf"
+    )
+    return paginar(select, from_where, "ORDER BY v.dataSessao DESC", params, limit, offset)
 
 
 @router.get("/legislativo/senado/processos")

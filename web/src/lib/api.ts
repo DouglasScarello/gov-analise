@@ -211,6 +211,38 @@ export function listarBalanco(siglaEnte: string, limit = 20): Promise<ContaBalan
   return apiFetch(`/financas/balanco?sigla_ente=${encodeURIComponent(siglaEnte)}&limit=${limit}`);
 }
 
+export type VotacaoSenado = {
+  dataSessao: string | null;
+  materiaSigla: string | null;
+  materiaNumero: string | null;
+  materiaAno: string | null;
+  materiaEmenta: string | null;
+  descricaoVotacao: string;
+  descricaoResultado: string;
+  voto: string;
+  senadorNome: string | null;
+  senadorPartido: string | null;
+  senadorUf: string | null;
+};
+
+export function listarVotacoesSenado(
+  params: {
+    senador?: string;
+    uf?: string;
+    materiaSigla?: string;
+    resultado?: string;
+    limit?: number;
+    offset?: number;
+  } = {}
+): Promise<Paginated<VotacaoSenado>> {
+  const qs = new URLSearchParams(
+    Object.entries(params)
+      .filter(([, v]) => v !== undefined && v !== "")
+      .map(([k, v]) => [k, String(v)])
+  );
+  return apiFetch(`/legislativo/senado/votacoes?${qs.toString()}`, 0);
+}
+
 export const UFS = [
   "AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT",
   "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO",
