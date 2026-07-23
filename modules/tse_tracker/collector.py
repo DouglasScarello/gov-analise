@@ -52,11 +52,11 @@ def _salvar_snapshot_parquet(recurso: str, registros: list[dict], inicio: dateti
     return arquivo
 
 
-def collect_candidatos(ano: int = ANO_ELEICAO) -> list[dict]:
+def collect_candidatos(ano: int = ANO_ELEICAO, recurso: str = "candidatos") -> list[dict]:
     inicio = datetime.now(tz=timezone.utc)
     candidatos = get_candidatos(ano)
     if candidatos:
-        _salvar_snapshot_parquet("candidatos", candidatos, inicio)
+        _salvar_snapshot_parquet(recurso, candidatos, inicio)
     return candidatos
 
 
