@@ -24,8 +24,11 @@ REQUEST_TIMEOUT = 30
 # A API impõe limite de requisições por minuto — pausa conservadora entre chamadas
 REQUEST_DELAY = 0.7
 
-# Sanções (CEIS/CNEP): quantas páginas buscar (15 registros por página)
-MAX_PAGINAS_SANCOES = 20
+# Sanções (CEIS/CNEP): quantas páginas buscar (15 registros por página).
+# A paginação já para sozinha quando uma página vem com menos de 15 itens
+# (fim da base) — este número é só um teto de segurança, bem acima do
+# tamanho real das bases (CEIS ~1.550 páginas, CNEP ~115, em 2026-07).
+MAX_PAGINAS_SANCOES = 2000
 
 # Contratos: órgãos superiores (código SIAFI) amostrados e páginas por órgão
 ORGAOS_CONTRATOS = {

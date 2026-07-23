@@ -12,7 +12,7 @@ from typing import Optional
 
 import requests
 
-from .config import AGREGADOS_URL, LOCALIDADES_URL, HEADERS, REQUEST_TIMEOUT, TABELAS
+from .config import AGREGADOS_URL, ANOS_HISTORICO, LOCALIDADES_URL, HEADERS, REQUEST_TIMEOUT, TABELAS
 
 
 def _get_json(url: str) -> Optional[object]:
@@ -50,10 +50,10 @@ def _achatar_serie(resposta: list, recurso: str) -> list[dict]:
     return registros
 
 
-def get_tabela_por_uf(id_tabela: int, id_variavel: int, recurso: str) -> list[dict]:
-    """Busca o período mais recente de uma tabela SIDRA, agregado por UF (N3)."""
-    print(f"[ibge_tracker] Buscando {recurso} (tabela {id_tabela})...")
-    url = f"{AGREGADOS_URL}/{id_tabela}/periodos/-1/variaveis/{id_variavel}?localidades=N3[all]"
+def get_tabela_por_uf(id_tabela: int, id_variavel: int, recurso: str, anos: int = ANOS_HISTORICO) -> list[dict]:
+    """Busca os últimos `anos` períodos de uma tabela SIDRA, agregado por UF (N3)."""
+    print(f"[ibge_tracker] Buscando {anos} anos de {recurso} (tabela {id_tabela})...")
+    url = f"{AGREGADOS_URL}/{id_tabela}/periodos/-{anos}/variaveis/{id_variavel}?localidades=N3[all]"
     dados = _get_json(url)
     registros = _achatar_serie(dados, recurso)
     print(f"[ibge_tracker] {recurso}: {len(registros)} registros")

@@ -21,6 +21,10 @@ SERIES = {
     4447: "taxa_desocupacao_pnad",
 }
 
-# Quantos últimos valores buscar por série (histórico recente).
-# A API do SGS limita "ultimos/N" a no máximo 20 valores por requisição.
+# Quantos últimos valores buscar por série via /ultimos/N (a API do SGS limita
+# esse endpoint a no máximo 20 valores por requisição) — usado só como fallback.
 ULTIMOS_N = 20
+
+# Quantos anos de histórico buscar via o endpoint de intervalo de datas
+# (/dados?dataInicial=...&dataFinal=...), que não tem o limite de 20 pontos.
+ANOS_HISTORICO = 10
