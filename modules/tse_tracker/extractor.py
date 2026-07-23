@@ -60,6 +60,11 @@ def get_candidatos(ano: int = None) -> list[dict]:
 
     print(f"[tse_tracker] Buscando pacote '{nome_pacote}' no catálogo CKAN...")
     pacote = get_pacote(nome_pacote)
+    if not pacote and ano is not None:
+        # Alguns anos (ex: 2020) foram publicados no catálogo com sufixo "-subtemas".
+        nome_pacote_alt = f"candidatos-{ano}-subtemas"
+        print(f"[tse_tracker] Pacote '{nome_pacote}' não encontrado, tentando '{nome_pacote_alt}'...")
+        pacote = get_pacote(nome_pacote_alt)
     if not pacote:
         print(f"[tse_tracker] Pacote '{nome_pacote}' não encontrado.")
         return []

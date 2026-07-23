@@ -6,16 +6,16 @@ para os quais há dado coletado:
 - federal   → deputado federal / senador (Câmara e Senado, mandato atual)
 - estadual  → governador / vice-governador / deputado estadual / deputado
               distrital (TSE, eleições 1994-2022)
-- municipal → prefeito / vice-prefeito / vereador (TSE, eleição 2024)
+- municipal → prefeito / vice-prefeito / vereador (TSE, eleições 1996-2024)
 
-Nacional e estadual vêm do registro de candidatura do TSE, por isso são
-filtrados por DS_SIT_TOT_TURNO = 'ELEITO' (não interessa quem concorreu e
-perdeu). Federal vem das APIs de Câmara/Senado, que já refletem o mandato
-em exercício, então não tem conceito de "ano" — é sempre o atual.
+Nacional, estadual e municipal vêm do registro de candidatura do TSE, por
+isso são filtrados por DS_SIT_TOT_TURNO = 'ELEITO' (não interessa quem
+concorreu e perdeu). Federal vem das APIs de Câmara/Senado, que já refletem
+o mandato em exercício, então não tem conceito de "ano" — é sempre o atual.
 
 SQ_CANDIDATO não é único entre anos diferentes (o TSE reaproveita a
-sequência a cada eleição), então nacional/estadual usam um id composto
-"<ano>-<sq_candidato>" para não colidir.
+sequência a cada eleição), então nacional/estadual/municipal usam um id
+composto "<ano>-<sq_candidato>" para não colidir.
 
 Observação: o arquivo de candidatos de 2006 do TSE não preenche
 DS_SIT_TOT_TURNO (vem todo "#NULO#"), então esse ano fica ausente dos
@@ -37,11 +37,18 @@ CARGOS_ESTADUAL = ["GOVERNADOR", "VICE-GOVERNADOR", "DEPUTADO ESTADUAL", "DEPUTA
 CARGOS_MUNICIPAL = ["PREFEITO", "VICE-PREFEITO", "VEREADOR"]
 
 ANOS_ELEICAO_GERAL = [1994, 1998, 2002, 2006, 2010, 2014, 2018, 2022]
+ANOS_ELEICAO_MUNICIPAL = [1996, 2000, 2004, 2008, 2012, 2016, 2020, 2024]
 
 NIVEIS = {
     "nacional": {"tabela": "stg_tse_candidatos_geral", "cargos": CARGOS_NACIONAL, "tem_uf": False, "tem_municipio": False, "tem_ano": True},
     "estadual": {"tabela": "stg_tse_candidatos_geral", "cargos": CARGOS_ESTADUAL, "tem_uf": True, "tem_municipio": False, "tem_ano": True},
-    "municipal": {"tabela": "stg_tse_candidatos", "cargos": CARGOS_MUNICIPAL, "tem_uf": True, "tem_municipio": True, "tem_ano": False},
+    "municipal": {"tabela": "stg_tse_candidatos_municipal_geral", "cargos": CARGOS_MUNICIPAL, "tem_uf": True, "tem_municipio": True, "tem_ano": True},
+}
+
+ANOS_POR_NIVEL = {
+    "nacional": ANOS_ELEICAO_GERAL,
+    "estadual": ANOS_ELEICAO_GERAL,
+    "municipal": ANOS_ELEICAO_MUNICIPAL,
 }
 
 CARGO_LABEL = {
@@ -73,9 +80,12 @@ def listar_tipos_de_cargo():
 
 
 @router.get("/anos")
-def listar_anos_disponiveis():
-    """Anos de eleição geral (nacional/estadual) com dado coletado."""
-    return {"anos": ANOS_ELEICAO_GERAL}
+def listar_anos_disponiveis(nivel: str = Query("nacional", description="nacional | estadual | municipal")):
+    """Anos de eleição com dado coletado para o nível informado."""
+    anos = ANOS_POR_NIVEL.get(nivel.lower())
+    if anos is None:
+        raise HTTPException(status_code=400, detail="nivel deve ser: nacional, estadual ou municipal")
+    return {"anos": anos}
 
 
 def _listar_federal(cargo: Optional[str], uf: Optional[str], nome: Optional[str], limit: int, offset: int):

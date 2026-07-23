@@ -23,9 +23,11 @@ from .unify import (
 )
 
 # Anos de eleição geral (presidente/governador/senador/deputado) já coletados.
-# Eleições municipais (prefeito/vice-prefeito/vereador) ficam à parte, em
-# "candidatos" (2024) — só há um ano coletado por ora.
 ANOS_ELEICAO_GERAL = [1994, 1998, 2002, 2006, 2010, 2014, 2018, 2022]
+
+# Anos de eleição municipal (prefeito/vice-prefeito/vereador) já coletados.
+# 2024 é o recurso "candidatos" (default, sem sufixo de ano).
+ANOS_ELEICAO_MUNICIPAL = [1996, 2000, 2004, 2008, 2012, 2016, 2020]
 
 log = logging.getLogger(__name__)
 
@@ -51,6 +53,8 @@ FONTES_PARQUET = [
     ("tse", "candidatos", clean.limpar_tse_candidatos),
 ] + [
     ("tse", f"candidatos_{ano}", clean.limpar_tse_candidatos) for ano in ANOS_ELEICAO_GERAL
+] + [
+    ("tse", f"candidatos_{ano}", clean.limpar_tse_candidatos) for ano in ANOS_ELEICAO_MUNICIPAL
 ]
 
 
@@ -89,6 +93,14 @@ def build() -> dict:
         [staging.get(f"tse_candidatos_{ano}", pd.DataFrame()) for ano in ANOS_ELEICAO_GERAL]
     )
     resultado["stg_tse_candidatos_geral"] = _gravar_tabela(con, "stg_tse_candidatos_geral", geral)
+
+    municipal_geral = unificar_tse_candidatos_geral(
+        [staging.get("tse_candidatos", pd.DataFrame())]
+        + [staging.get(f"tse_candidatos_{ano}", pd.DataFrame()) for ano in ANOS_ELEICAO_MUNICIPAL]
+    )
+    resultado["stg_tse_candidatos_municipal_geral"] = _gravar_tabela(
+        con, "stg_tse_candidatos_municipal_geral", municipal_geral
+    )
 
     pessoas = unificar_pessoas_politicas(
         staging.get("camara_deputados", pd.DataFrame()),

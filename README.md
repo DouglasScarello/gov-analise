@@ -224,6 +224,10 @@ para não serem confundidas com bugs:
   contra os 27 governadores eleitos de 1994 a 2010). Por isso, esses vices ficam de fora das
   listagens de "eleitos" desses anos — a alternativa seria adivinhar, o que arriscaria atribuir o
   cargo à pessoa errada.
+- **Vice-prefeito eleito antes de 2012 tem a mesma lacuna, com corte diferente.** Nas eleições
+  municipais de 1996, 2000, 2004 e 2008, `DS_SIT_TOT_TURNO` também vem `#NULO`/`#NULO#` para todos
+  os candidatos a vice-prefeito. A partir de 2012 o TSE passou a registrar a situação normalmente.
+  Prefeito e vereador não têm essa lacuna em nenhum ano coletado.
 - **Eleição de 2006 para presidente/vice-presidente não tem resultado no dado do TSE.** Só nesse
   ano específico, `DS_SIT_TOT_TURNO` vem `#NULO#` para todos os candidatos a presidente e
   vice-presidente (governadores de 2006 não têm esse problema).
@@ -231,10 +235,9 @@ para não serem confundidas com bugs:
   Presidente, governadores, deputados estaduais/distritais, prefeitos e vereadores vêm do registro
   de candidatura do TSE, que não inclui foto — o frontend mostra as iniciais do nome nesses casos.
 - **Câmara/Senado mostram só o mandato atual, não o histórico de legislaturas passadas.** Já o TSE
-  cobre candidatos de 1994 a 2024, mas para eleições municipais (prefeito/vice-prefeito/vereador)
-  só temos 2024 coletado — anos anteriores (1996-2020) não foram baixados.
-  Um vereador ou deputado federal de legislaturas anteriores só aparece pelo lado de candidatura,
-  se dentro dos anos gerais já coletados (1994-2022), não pelo lado de mandato exercido.
+  cobre candidatos de todas as eleições gerais (1994-2022) e municipais (1996-2024) desde a
+  redemocratização. Um vereador ou deputado federal de legislaturas anteriores só aparece pelo lado
+  de candidatura, dentro dos anos já coletados, não pelo lado de mandato exercido.
 - **Cruzamento de sanções (CEIS/CNEP) é por nome, não por CPF.** O CPF nas bases públicas do TSE
   vem mascarado/redigido, então não há identificador único entre as fontes — o cruzamento por nome
   normalizado pode incluir homônimos.
