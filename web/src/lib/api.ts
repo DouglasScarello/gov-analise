@@ -15,10 +15,26 @@ export type Pessoa = {
   senadoFoto?: string | null;
 };
 
+export type LegislaturaCamara = {
+  idLegislatura: number;
+  siglaPartido: string | null;
+  siglaUf: string | null;
+};
+
+export type LegislaturaSenado = {
+  numeroLegislatura: number;
+  dataInicio: string | null;
+  dataFim: string | null;
+  siglaUf: string | null;
+  participacao: string | null;
+};
+
 export type PessoaDetalhe = Pessoa & {
   sancoesVinculadas: Sancao[];
   contratosVinculados: Contrato[];
   votacoesRecentes: Votacao[];
+  legislaturasCamara: LegislaturaCamara[];
+  legislaturasSenado: LegislaturaSenado[];
 };
 
 export type Sancao = {
@@ -114,7 +130,7 @@ export function buscar(q: string): Promise<BuscaResultado> {
 }
 
 export function obterPessoa(slug: string): Promise<PessoaDetalhe> {
-  return apiFetch(`/pessoas/${encodeURIComponent(slug)}`);
+  return apiFetch(`/pessoas/${encodeURIComponent(slug)}`, 0);
 }
 
 export function listarSancoes(

@@ -13,7 +13,15 @@ from typing import Optional
 
 import requests
 
-from .config import BASE_URL, PROCESSO_URL, HEADERS, REQUEST_TIMEOUT, REQUEST_DELAY
+from .config import (
+    BASE_URL,
+    LEGISLATURA_FIM,
+    LEGISLATURA_INICIO,
+    PROCESSO_URL,
+    HEADERS,
+    REQUEST_TIMEOUT,
+    REQUEST_DELAY,
+)
 
 
 def _get_json(url: str, params: Optional[dict] = None) -> Optional[dict]:
@@ -121,3 +129,55 @@ def get_processos(ano: Optional[int] = None, limite: int = 1000) -> list[dict]:
     processos = data if isinstance(data, list) else data.get("dados", [])
     print(f"[senado_tracker] {len(processos)} processos encontrados.")
     return processos
+
+
+def _extrair_legislaturas_do_mandato(mandato: dict) -> list[dict]:
+    """Um mandato de senador dura 2 legislaturas (8 anos) — extrai cada uma."""
+    legislaturas = []
+    for chave in ("PrimeiraLegislaturaDoMandato", "SegundaLegislaturaDoMandato"):
+        leg = mandato.get(chave)
+        if leg:
+            legislaturas.append(leg)
+    return legislaturas
+
+
+def get_senadores_legislaturas(
+    inicio: int = LEGISLATURA_INICIO, fim: int = LEGISLATURA_FIM
+) -> list[dict]:
+    """Retorna um registro por (senador, legislatura, mandato) no intervalo
+    informado — permite montar o histórico de mandatos por pessoa."""
+    print(f"[senado_tracker] Buscando senadores das legislaturas {inicio} a {fim}...")
+    data = _get_json(f"{BASE_URL}/senador/lista/legislatura/{inicio}/{fim}")
+    if not data:
+        return []
+
+    parlamentares = (
+        data.get("ListaParlamentarLegislatura", {})
+        .get("Parlamentares", {})
+        .get("Parlamentar", [])
+    )
+    if isinstance(parlamentares, dict):
+        parlamentares = [parlamentares]
+
+    registros: list[dict] = []
+    for p in parlamentares:
+        ident = p.get("IdentificacaoParlamentar", {})
+        mandatos = p.get("Mandatos", {}).get("Mandato", [])
+        if isinstance(mandatos, dict):
+            mandatos = [mandatos]
+
+        for mandato in mandatos:
+            for leg in _extrair_legislaturas_do_mandato(mandato):
+                registros.append({
+                    "id": ident.get("CodigoParlamentar"),
+                    "nome": ident.get("NomeParlamentar"),
+                    "nomeCompleto": ident.get("NomeCompletoParlamentar"),
+                    "siglaUf": mandato.get("UfParlamentar"),
+                    "numeroLegislatura": leg.get("NumeroLegislatura"),
+                    "dataInicio": leg.get("DataInicio"),
+                    "dataFim": leg.get("DataFim"),
+                    "participacao": mandato.get("DescricaoParticipacao"),
+                })
+
+    print(f"[senado_tracker] {len(registros)} registros de mandatos por legislatura encontrados.")
+    return registros

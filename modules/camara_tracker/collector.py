@@ -11,7 +11,7 @@ import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .extractor import get_deputados_atuais
+from .extractor import get_deputados_atuais, get_deputados_por_legislaturas
 
 log = logging.getLogger(__name__)
 
@@ -54,6 +54,14 @@ def collect_deputados() -> list[dict]:
     if deputados:
         _salvar_snapshot("deputados", deputados, inicio)
     return deputados
+
+
+def collect_legislaturas() -> list[dict]:
+    inicio = datetime.now(tz=timezone.utc)
+    registros = get_deputados_por_legislaturas()
+    if registros:
+        _salvar_snapshot("legislaturas", registros, inicio)
+    return registros
 
 
 def collect_all() -> dict:

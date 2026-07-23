@@ -67,9 +67,27 @@ def detalhe_pessoa(slug: str):
             [str(int(float(pessoa["senadoId"])))] if pessoa["senadoId"] else [],
         )
 
+    legislaturas_camara = []
+    if pessoa.get("camaraId"):
+        legislaturas_camara = query(
+            "SELECT idLegislatura, siglaPartido, siglaUf FROM stg_camara_legislaturas "
+            "WHERE id = ? ORDER BY idLegislatura DESC",
+            [int(pessoa["camaraId"])],
+        )
+
+    legislaturas_senado = []
+    if pessoa.get("senadoId"):
+        legislaturas_senado = query(
+            "SELECT numeroLegislatura, dataInicio, dataFim, siglaUf, participacao "
+            "FROM stg_senado_legislaturas WHERE id = ? ORDER BY numeroLegislatura DESC",
+            [str(int(float(pessoa["senadoId"])))],
+        )
+
     return {
         **pessoa,
         "sancoesVinculadas": sancoes,
         "contratosVinculados": contratos,
         "votacoesRecentes": votacoes,
+        "legislaturasCamara": legislaturas_camara,
+        "legislaturasSenado": legislaturas_senado,
     }

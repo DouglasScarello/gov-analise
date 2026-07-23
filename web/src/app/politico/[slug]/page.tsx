@@ -66,6 +66,32 @@ export default async function PoliticoPage({
         )}
       </div>
 
+      {(pessoa.legislaturasCamara.length > 0 || pessoa.legislaturasSenado.length > 0) && (
+        <section className="mt-8">
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            Histórico de legislaturas
+          </h2>
+          <ul className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+            {pessoa.legislaturasCamara.map((l) => (
+              <li key={`camara-${l.idLegislatura}`} className="px-4 py-3">
+                <p className="font-medium">{l.idLegislatura}ª legislatura (Câmara)</p>
+                <p className="text-sm text-neutral-500">
+                  {l.siglaPartido} · {l.siglaUf}
+                </p>
+              </li>
+            ))}
+            {pessoa.legislaturasSenado.map((l) => (
+              <li key={`senado-${l.numeroLegislatura}`} className="px-4 py-3">
+                <p className="font-medium">{l.numeroLegislatura}ª legislatura (Senado)</p>
+                <p className="text-sm text-neutral-500">
+                  {l.participacao} · {l.siglaUf} · {formatarData(l.dataInicio)} a {formatarData(l.dataFim)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section className="mt-8">
         <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
           Sanções vinculadas ao nome

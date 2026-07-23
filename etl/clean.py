@@ -19,6 +19,28 @@ def limpar_camara_deputados(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def limpar_camara_legislaturas(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df
+    out = df[["id", "nome", "siglaPartido", "siglaUf", "idLegislatura"]].copy()
+    out = out.drop_duplicates(subset=["id", "idLegislatura", "siglaPartido"])
+    return out
+
+
+def limpar_senado_legislaturas(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df
+    out = df[[
+        "id", "nome", "nomeCompleto", "siglaUf",
+        "numeroLegislatura", "dataInicio", "dataFim", "participacao",
+    ]].copy()
+    out["numeroLegislatura"] = pd.to_numeric(out["numeroLegislatura"], errors="coerce").astype("Int64")
+    out["dataInicio"] = pd.to_datetime(out["dataInicio"], errors="coerce")
+    out["dataFim"] = pd.to_datetime(out["dataFim"], errors="coerce")
+    out = out.drop_duplicates(subset=["id", "numeroLegislatura"])
+    return out
+
+
 def limpar_senado_senadores(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df

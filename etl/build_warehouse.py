@@ -34,7 +34,9 @@ log = logging.getLogger(__name__)
 # (fonte, recurso, tipo_arquivo, função_de_limpeza) -> nome da tabela staging
 FONTES_JSON = [
     ("camara", "deputados", clean.limpar_camara_deputados),
+    ("camara", "legislaturas", clean.limpar_camara_legislaturas),
     ("senado", "senadores", clean.limpar_senado_senadores),
+    ("senado", "legislaturas", clean.limpar_senado_legislaturas),
     ("senado", "processos", clean.limpar_senado_processos),
     ("senado", "votacoes", clean.limpar_senado_votacoes),
     ("bacen", "series", clean.limpar_bacen_series),
