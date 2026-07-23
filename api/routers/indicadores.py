@@ -5,9 +5,9 @@ finanças públicas (SICONFI).
 
 from typing import Optional
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 
-from ..db import paginar, query
+from ..db import paginar, query, query_one
 
 router = APIRouter(tags=["indicadores"])
 
@@ -125,6 +125,41 @@ def votacoes_senado(
         "s.nome AS senadorNome, s.siglaPartido AS senadorPartido, s.siglaUf AS senadorUf"
     )
     return paginar(select, from_where, "ORDER BY v.dataSessao DESC", params, limit, offset)
+
+
+@router.get("/legislativo/senado/votacoes/detalhe")
+def detalhe_votacao_senado(
+    dataSessao: str = Query(..., description="Data da sessão, formato YYYY-MM-DD"),
+    materiaSigla: str = Query(...),
+    materiaNumero: str = Query(...),
+    materiaAno: str = Query(...),
+    descricaoVotacao: str = Query(...),
+):
+    votos = query(
+        "SELECT v.voto, s.nome AS senadorNome, s.siglaPartido AS senadorPartido, s.siglaUf AS senadorUf "
+        "FROM stg_senado_votacoes v LEFT JOIN stg_senado_senadores s ON s.id = v.codigoSenador "
+        "WHERE v.dataSessao = ? AND v.materiaSigla = ? AND v.materiaNumero = ? "
+        "AND v.materiaAno = ? AND v.descricaoVotacao = ? "
+        "ORDER BY s.nome",
+        [dataSessao, materiaSigla, materiaNumero, materiaAno, descricaoVotacao],
+    )
+    if not votos:
+        raise HTTPException(status_code=404, detail="Votação não encontrada")
+
+    materia = query_one(
+        "SELECT dataSessao, materiaSigla, materiaNumero, materiaAno, materiaEmenta, "
+        "descricaoVotacao, descricaoResultado, votacaoSecreta "
+        "FROM stg_senado_votacoes "
+        "WHERE dataSessao = ? AND materiaSigla = ? AND materiaNumero = ? "
+        "AND materiaAno = ? AND descricaoVotacao = ? LIMIT 1",
+        [dataSessao, materiaSigla, materiaNumero, materiaAno, descricaoVotacao],
+    )
+
+    contagem: dict[str, int] = {}
+    for v in votos:
+        contagem[v["voto"]] = contagem.get(v["voto"], 0) + 1
+
+    return {**materia, "votos": votos, "contagemVotos": contagem}
 
 
 @router.get("/legislativo/senado/processos")

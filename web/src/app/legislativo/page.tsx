@@ -1,5 +1,6 @@
 import Link from "next/link";
 import FiltroNome from "@/components/FiltroNome";
+import VotacaoItem from "@/components/VotacaoItem";
 import { listarVotacoesSenado, UFS } from "@/lib/api";
 
 const POR_PAGINA = 30;
@@ -12,17 +13,6 @@ type Params = {
 };
 
 const RESULTADOS = ["Aprovado", "Rejeitado", "Prejudicado", "Empate"] as const;
-
-function formatarData(iso: string | null) {
-  if (!iso) return "data não informada";
-  const [ano, mes, dia] = iso.split("T")[0].split("-");
-  return `${dia}/${mes}/${ano}`;
-}
-
-const RESULTADO_COR: Record<string, string> = {
-  Aprovado: "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-400",
-  Rejeitado: "border-red-300 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-400",
-};
 
 function construirLink(params: Params, novaPagina: number) {
   const qs = new URLSearchParams();
@@ -124,29 +114,11 @@ export default async function LegislativoPage({
         ))}
       </div>
 
-      <ul className="mt-6 divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+      <p className="mt-4 text-xs text-neutral-400">Clique em uma votação para ver a ementa completa e o voto de todos os senadores.</p>
+
+      <ul className="mt-2 divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
         {votacoes.map((v, i) => (
-          <li key={i} className="px-4 py-3">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium">{v.descricaoVotacao}</p>
-                {v.materiaEmenta && (
-                  <p className="mt-1 line-clamp-2 text-sm text-neutral-500">{v.materiaEmenta}</p>
-                )}
-                <p className="mt-1 text-xs text-neutral-500">
-                  {v.senadorNome} · {v.senadorPartido}/{v.senadorUf} · voto: {v.voto} ·{" "}
-                  {formatarData(v.dataSessao)}
-                </p>
-              </div>
-              <span
-                className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${
-                  RESULTADO_COR[v.descricaoResultado] ?? "border-neutral-300 dark:border-neutral-700"
-                }`}
-              >
-                {v.descricaoResultado}
-              </span>
-            </div>
-          </li>
+          <VotacaoItem key={i} votacao={v} />
         ))}
       </ul>
 

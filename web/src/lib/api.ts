@@ -242,6 +242,37 @@ export type VotacaoSenado = {
   senadorUf: string | null;
 };
 
+export type VotoDetalhe = {
+  voto: string;
+  senadorNome: string | null;
+  senadorPartido: string | null;
+  senadorUf: string | null;
+};
+
+export type VotacaoDetalhe = {
+  dataSessao: string | null;
+  materiaSigla: string | null;
+  materiaNumero: string | null;
+  materiaAno: string | null;
+  materiaEmenta: string | null;
+  descricaoVotacao: string;
+  descricaoResultado: string;
+  votacaoSecreta: string | null;
+  votos: VotoDetalhe[];
+  contagemVotos: Record<string, number>;
+};
+
+export function obterDetalheVotacaoSenado(params: {
+  dataSessao: string;
+  materiaSigla: string;
+  materiaNumero: string;
+  materiaAno: string;
+  descricaoVotacao: string;
+}): Promise<VotacaoDetalhe> {
+  const qs = new URLSearchParams(params);
+  return apiFetch(`/legislativo/senado/votacoes/detalhe?${qs.toString()}`, 0);
+}
+
 export function listarVotacoesSenado(
   params: {
     senador?: string;
