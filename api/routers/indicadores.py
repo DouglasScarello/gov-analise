@@ -62,15 +62,30 @@ def balanco_patrimonial(
 
 @router.get("/judicial/processos")
 def processos_judiciais(
-    tribunal: Optional[str] = Query(None, description="STJ | TST | TRF1 | TJSP | TJRJ | TJMG"),
-    limit: int = Query(50, le=500),
+    tribunal: Optional[str] = Query(None, description="Sigla do tribunal, ex: STJ, TJSP, TRF1"),
+    classe: Optional[str] = Query(None, description="Busca parcial pela classe processual"),
+    limit: int = Query(50, le=200),
+    offset: int = Query(0, ge=0),
 ):
+    condicoes = []
+    params: list = []
     if tribunal:
-        return query(
-            "SELECT * FROM stg_datajud_processos WHERE tribunal = ? ORDER BY dataUltimaAtualizacao DESC LIMIT ?",
-            [tribunal.upper(), limit],
-        )
-    return query("SELECT * FROM stg_datajud_processos ORDER BY dataUltimaAtualizacao DESC LIMIT ?", [limit])
+        condicoes.append("tribunal = ?")
+        params.append(tribunal.upper())
+    if classe:
+        condicoes.append("classeNome ILIKE ?")
+        params.append(f"%{classe}%")
+    where = f"WHERE {' AND '.join(condicoes)}" if condicoes else ""
+    return paginar(
+        "*", f"FROM stg_datajud_processos {where}", "ORDER BY dataUltimaAtualizacao DESC", params, limit, offset
+    )
+
+
+@router.get("/judicial/tribunais")
+def tribunais_disponiveis():
+    return query(
+        "SELECT tribunal, COUNT(*) AS total FROM stg_datajud_processos GROUP BY tribunal ORDER BY tribunal"
+    )
 
 
 @router.get("/legislativo/senado/votacoes")

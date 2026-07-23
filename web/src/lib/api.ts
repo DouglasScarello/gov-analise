@@ -260,6 +260,34 @@ export function listarVotacoesSenado(
   return apiFetch(`/legislativo/senado/votacoes?${qs.toString()}`, 0);
 }
 
+export type ProcessoJudicial = {
+  id: string;
+  tribunal: string;
+  grau: string | null;
+  numeroProcesso: string;
+  dataAjuizamento: string | null;
+  classeNome: string | null;
+  orgaoJulgadorNome: string | null;
+  dataUltimaAtualizacao: string | null;
+};
+
+export type TribunalContagem = { tribunal: string; total: number };
+
+export function listarProcessosJudiciais(
+  params: { tribunal?: string; classe?: string; limit?: number; offset?: number } = {}
+): Promise<Paginated<ProcessoJudicial>> {
+  const qs = new URLSearchParams(
+    Object.entries(params)
+      .filter(([, v]) => v !== undefined && v !== "")
+      .map(([k, v]) => [k, String(v)])
+  );
+  return apiFetch(`/judicial/processos?${qs.toString()}`, 0);
+}
+
+export function listarTribunaisDisponiveis(): Promise<TribunalContagem[]> {
+  return apiFetch(`/judicial/tribunais`, 0);
+}
+
 export const UFS = [
   "AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT",
   "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO",

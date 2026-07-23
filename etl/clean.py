@@ -8,7 +8,7 @@ um DataFrame "staging" pronto para virar tabela no warehouse.
 
 import pandas as pd
 
-from .utils import extrair_campo, normalizar_nome, somente_digitos
+from .utils import corrigir_dupla_codificacao, extrair_campo, normalizar_nome, somente_digitos
 
 
 def limpar_camara_deputados(df: pd.DataFrame) -> pd.DataFrame:
@@ -160,8 +160,8 @@ def limpar_datajud_processos(df: pd.DataFrame) -> pd.DataFrame:
         "grau": df["grau"],
         "numeroProcesso": df["numeroProcesso"],
         "dataAjuizamento": pd.to_datetime(df["dataAjuizamento"], format="%Y%m%d%H%M%S", errors="coerce"),
-        "classeNome": extrair_campo(df["classe"], "nome"),
-        "orgaoJulgadorNome": extrair_campo(df["orgaoJulgador"], "nome"),
+        "classeNome": extrair_campo(df["classe"], "nome").map(corrigir_dupla_codificacao),
+        "orgaoJulgadorNome": extrair_campo(df["orgaoJulgador"], "nome").map(corrigir_dupla_codificacao),
         "dataUltimaAtualizacao": pd.to_datetime(df["dataHoraUltimaAtualizacao"], errors="coerce", utc=True),
     })
     return out

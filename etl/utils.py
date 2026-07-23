@@ -25,3 +25,15 @@ def somente_digitos(valor) -> str:
 def extrair_campo(serie: pd.Series, chave: str):
     """De uma coluna de dicts (ou None), extrai o valor de `chave` em cada linha."""
     return serie.apply(lambda d: d.get(chave) if isinstance(d, dict) else None)
+
+
+def corrigir_dupla_codificacao(texto):
+    """Corrige texto UTF-8 codificado duas vezes (bug visto em alguns tribunais do
+    DataJud, ex: 'PRESIDÃŠNCIA' → 'PRESIDÊNCIA'). Round-trip seguro: só aplica a
+    correção quando o resultado é decodificável, senão mantém o texto original."""
+    if not isinstance(texto, str) or not texto:
+        return texto
+    try:
+        return texto.encode("latin-1").decode("utf-8")
+    except (UnicodeDecodeError, UnicodeEncodeError):
+        return texto

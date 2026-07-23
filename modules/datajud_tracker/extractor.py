@@ -9,21 +9,33 @@ tribunais". Este extractor busca, por tribunal, os processos com
 movimentação mais recente (ordenados por dataHoraUltimaAtualizacao desc).
 """
 
+import time
 from typing import Optional
 
 import requests
 
-from .config import BASE_URL, HEADERS, REQUEST_TIMEOUT, TRIBUNAIS, TAMANHO_AMOSTRA
+from .config import BASE_URL, HEADERS, REQUEST_DELAY, REQUEST_TIMEOUT, TRIBUNAIS, TAMANHO_AMOSTRA
 
 
-def _post_json(url: str, body: dict) -> Optional[dict]:
-    try:
-        response = requests.post(url, headers=HEADERS, json=body, timeout=REQUEST_TIMEOUT)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"[ERRO] Falha na requisição a {url}: {e}")
-        return None
+def _post_json(url: str, body: dict, tentativas: int = 3) -> Optional[dict]:
+    for tentativa in range(1, tentativas + 1):
+        try:
+            response = requests.post(url, headers=HEADERS, json=body, timeout=REQUEST_TIMEOUT)
+            if response.status_code == 429 and tentativa < tentativas:
+                espera = REQUEST_DELAY * 5 * tentativa
+                print(f"[datajud_tracker] 429 em {url}, aguardando {espera:.1f}s e tentando de novo...")
+                time.sleep(espera)
+                continue
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            if tentativa < tentativas:
+                print(f"[datajud_tracker] falha em {url} ({e}), tentativa {tentativa}/{tentativas}...")
+                time.sleep(REQUEST_DELAY * 5 * tentativa)
+                continue
+            print(f"[ERRO] Falha na requisição a {url}: {e}")
+            return None
+    return None
 
 
 def get_processos_recentes_tribunal(sigla: str, nome: str, tamanho: int = TAMANHO_AMOSTRA) -> list[dict]:
@@ -58,4 +70,5 @@ def get_todos_tribunais() -> list[dict]:
         processos = get_processos_recentes_tribunal(sigla, nome)
         print(f"[datajud_tracker] {sigla.upper()}: {len(processos)} processos")
         todos.extend(processos)
+        time.sleep(REQUEST_DELAY)
     return todos
