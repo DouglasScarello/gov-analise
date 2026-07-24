@@ -13,9 +13,12 @@ interface StatTileProps {
 function detectarFrequencia(pontos: Ponto[]): "diaria" | "mensal" | "anual" {
   if (!pontos || pontos.length < 2) return "mensal";
 
-  const data1 = new Date(pontos[0].data);
-  const data2 = new Date(pontos[1].data);
-  const diasDiferenca = Math.abs((data1.getTime() - data2.getTime()) / (1000 * 60 * 60 * 24));
+  // Pontos em ordem crescente, pegar os últimos dois para medir frequência recente
+  const idx1 = pontos.length - 2;
+  const idx2 = pontos.length - 1;
+  const data1 = new Date(pontos[idx1].data);
+  const data2 = new Date(pontos[idx2].data);
+  const diasDiferenca = Math.abs((data2.getTime() - data1.getTime()) / (1000 * 60 * 60 * 24));
 
   if (diasDiferenca <= 1.5) return "diaria";
   if (diasDiferenca >= 25 && diasDiferenca <= 35) return "mensal";
@@ -44,8 +47,10 @@ function calcularVariacao(
 
   if (intervalo === 0 || pontos.length < intervalo + 1) return null;
 
-  const recente = pontos[0]?.valor;
-  const anterior = pontos[intervalo]?.valor;
+  // Pontos vêm em ordem crescente (mais antigos primeiro)
+  const ultimoIdx = pontos.length - 1;
+  const recente = pontos[ultimoIdx]?.valor;
+  const anterior = pontos[ultimoIdx - intervalo]?.valor;
 
   if (recente === undefined || anterior === undefined) return null;
   if (anterior === 0) return null;
@@ -78,7 +83,8 @@ export default function StatTile({
   const mom = calcularVariacao(pontos, "mom", frequencia);
   const yoy = calcularVariacao(pontos, "yoy", frequencia);
 
-  const exibirValor = valor ?? pontos[0]?.valor;
+  // Pontos vêm em ordem crescente (mais antigos primeiro), pegar o último
+  const exibirValor = valor ?? pontos[pontos.length - 1]?.valor;
 
   return (
     <div className="rounded-xl border border-neutral-200 p-4 dark:border-neutral-800">
