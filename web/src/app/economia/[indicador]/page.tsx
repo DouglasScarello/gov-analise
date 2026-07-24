@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import SerieLineChart from "@/components/charts/SerieLineChart";
 import { listarSeriesEconomicas, listarIndicadoresUf } from "@/lib/api";
 
+// Revalidate a cada 0 segundos (SSR dinâmico, sem cache)
+export const revalidate = 0;
+
 // Configuração de indicadores com explicação em linguagem leiga
 const INDICADORES = {
   selic_meta: {

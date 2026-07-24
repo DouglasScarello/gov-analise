@@ -5,6 +5,9 @@ import UfBarChart from "@/components/charts/UfBarChart";
 import { listarIndicadoresUf, listarSeriesEconomicas } from "@/lib/api";
 import { SIGLA_POR_ESTADO } from "@/lib/estados";
 
+// Revalidate a cada 0 segundos (SSR dinâmico, sem cache)
+export const revalidate = 0;
+
 const SERIES_CONFIG = [
   { chave: "selic_meta", titulo: "Selic", unidade: "% a.a.", seção: "Contas Públicas", semântica: "neutro" as const },
   { chave: "ipca_variacao_mensal", titulo: "IPCA (mensal)", unidade: "%", seção: "Preços", semântica: "melhor_queda" as const },
