@@ -53,7 +53,7 @@ export default async function OrgaoPage({
             ))}
           </ul>
         )}
-        <p className="mt-2 text-xs text-neutral-400">
+        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
           Cruzamento por nome — o SIAFI não compartilha código com as demais fontes, então pode não
           encontrar nada mesmo quando existe contrato vinculado.
         </p>
@@ -77,7 +77,7 @@ export default async function OrgaoPage({
             ))}
           </ul>
         )}
-        <p className="mt-2 text-xs text-neutral-400">Cruzamento por nome — pode incluir homônimos.</p>
+        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">Cruzamento por nome — pode incluir homônimos.</p>
       </section>
     </div>
   );

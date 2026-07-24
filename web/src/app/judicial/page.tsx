@@ -44,7 +44,7 @@ export default async function JudicialPage({
         Amostra recente de processos (CNJ DataJud), ordenada pela última movimentação, em um
         conjunto representativo de tribunais.
       </p>
-      <p className="mt-2 text-xs text-neutral-400">
+      <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
         O DataJud cobre dezenas de milhões de processos por tribunal — esta página mostra uma
         amostra recente, não o acervo completo.
       </p>

@@ -103,7 +103,7 @@ export default async function EstadoPage({ params }: { params: Promise<{ uf: str
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-xs text-neutral-400">
+          <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
             Cadastro de entes do SICONFI — balanço patrimonial só é coletado em nível estadual/federal.
           </p>
         </div>

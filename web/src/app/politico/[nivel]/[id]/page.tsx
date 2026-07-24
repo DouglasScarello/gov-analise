@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { obterPessoa, obterPoliticoCargo, type Candidatura, type Nivel, type Sancao } from "@/lib/api";
 
@@ -128,7 +129,10 @@ export default async function PoliticoPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <div className="flex items-center gap-4">
+      <Link href="/politicos" className="text-sm text-neutral-500 hover:text-blue-600">
+        ← Todos os políticos
+      </Link>
+      <div className="mt-4 flex items-center gap-4">
         {comum.foto ? (
           <Image
             src={comum.foto}
@@ -234,7 +238,7 @@ export default async function PoliticoPage({
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-xs text-neutral-400">
+          <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
             Cruzamento por nome no TSE — inclui candidaturas não eleitas e de qualquer nível
             (federal, estadual, municipal), pode incluir homônimos.
           </p>
@@ -266,14 +270,14 @@ export default async function PoliticoPage({
                   {p.tipoSigla} {p.numero}/{p.ano}
                 </a>
                 {p.ementa && <p className="mt-1 line-clamp-2 text-sm text-neutral-500">{p.ementa}</p>}
-                <p className="mt-1 text-xs text-neutral-400">
+                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                   {p.casa === "Camara" ? "Câmara" : "Senado"} · {formatarData(p.dataApresentacao)}
                 </p>
               </li>
             ))}
           </ul>
           {pessoaFederal.totalProposicoes > pessoaFederal.proposicoesRecentes.length && (
-            <p className="mt-2 text-xs text-neutral-400">
+            <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
               Mostrando as {pessoaFederal.proposicoesRecentes.length} mais recentes de{" "}
               {pessoaFederal.totalProposicoes}.
             </p>
@@ -327,7 +331,7 @@ export default async function PoliticoPage({
             ))}
           </ul>
         )}
-        <p className="mt-2 text-xs text-neutral-400">
+        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
           Cruzamento por nome — pode incluir homônimos, já que não há um identificador único público
           entre as fontes.
         </p>
@@ -353,7 +357,7 @@ export default async function PoliticoPage({
               ))}
             </ul>
           )}
-          <p className="mt-2 text-xs text-neutral-400">
+          <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
             Cruzamento por nome do fornecedor — pode incluir homônimos.
           </p>
         </section>

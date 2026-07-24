@@ -144,7 +144,7 @@ export default async function ProposicoesPage({
               {p.tipoSigla} {p.numero}/{p.ano}
             </a>
             {p.ementa && <p className="mt-1 line-clamp-2 text-sm text-neutral-500">{p.ementa}</p>}
-            <p className="mt-1 text-xs text-neutral-400">
+            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
               {p.casa === "Camara" ? "Câmara" : "Senado"} · {formatarData(p.dataApresentacao)}
             </p>
           </li>

@@ -90,7 +90,7 @@ export default async function VotacaoDetalhePage({
         {detalhe.votos.map((v, i) => (
           <li key={i} className="flex items-center justify-between px-4 py-2.5 text-sm">
             <span>
-              {v.senadorNome} <span className="text-neutral-400">({v.senadorPartido}/{v.senadorUf})</span>
+              {v.senadorNome} <span className="text-neutral-500 dark:text-neutral-400">({v.senadorPartido}/{v.senadorUf})</span>
             </span>
             <span className="shrink-0 font-medium text-neutral-600 dark:text-neutral-400">{v.voto}</span>
           </li>

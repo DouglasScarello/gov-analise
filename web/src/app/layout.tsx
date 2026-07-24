@@ -47,67 +47,93 @@ export default async function RootLayout({
             <Link href="/" className="shrink-0 text-lg font-semibold tracking-tight">
               Gov<span className="text-blue-600">Analise</span>
             </Link>
-            <div className="flex min-w-0 items-center gap-2 overflow-x-auto">
+            <div className="flex min-w-0 items-center gap-2">
               <Link
                 href="/politicos"
-                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
+                className="shrink-0 rounded-full border border-neutral-300 px-3 py-2 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
               >
                 Políticos
               </Link>
               <Link
-                href="/economia"
-                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
-              >
-                Economia
-              </Link>
-              <Link
-                href="/sancoes"
-                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
-              >
-                Sanções
-              </Link>
-              <Link
-                href="/contratos"
-                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
-              >
-                Contratos
-              </Link>
-              <Link
-                href="/estados"
-                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
-              >
-                Estados
-              </Link>
-              <Link
                 href="/legislativo"
-                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
+                className="hidden shrink-0 rounded-full border border-neutral-300 px-3 py-2 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700 sm:inline-block"
               >
                 Legislativo
               </Link>
               <Link
                 href="/proposicoes"
-                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
+                className="hidden shrink-0 rounded-full border border-neutral-300 px-3 py-2 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700 md:inline-block"
               >
                 Proposições
               </Link>
               <Link
-                href="/orgaos"
-                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
+                href="/estados"
+                className="hidden shrink-0 rounded-full border border-neutral-300 px-3 py-2 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700 lg:inline-block"
               >
-                Órgãos
+                Estados
               </Link>
-              <Link
-                href="/judicial"
-                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
-              >
-                Judiciário
-              </Link>
-              <Link
-                href="/sobre"
-                className="shrink-0 rounded-full border border-neutral-300 px-3 py-1.5 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
-              >
-                Sobre
-              </Link>
+              <details className="group relative shrink-0">
+                <summary className="flex list-none items-center gap-1 rounded-full border border-neutral-300 px-3 py-2 text-sm hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700 [&::-webkit-details-marker]:hidden">
+                  Mais
+                  <span className="transition-transform group-open:rotate-180">▾</span>
+                </summary>
+                <div className="absolute right-0 z-10 mt-2 flex w-44 flex-col gap-1 rounded-xl border border-neutral-200 bg-white p-2 shadow-lg dark:border-neutral-800 dark:bg-neutral-900">
+                  <Link
+                    href="/legislativo"
+                    className="rounded-lg px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 sm:hidden"
+                  >
+                    Legislativo
+                  </Link>
+                  <Link
+                    href="/proposicoes"
+                    className="rounded-lg px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 md:hidden"
+                  >
+                    Proposições
+                  </Link>
+                  <Link
+                    href="/estados"
+                    className="rounded-lg px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 lg:hidden"
+                  >
+                    Estados
+                  </Link>
+                  <Link
+                    href="/economia"
+                    className="rounded-lg px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  >
+                    Economia
+                  </Link>
+                  <Link
+                    href="/sancoes"
+                    className="rounded-lg px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  >
+                    Sanções
+                  </Link>
+                  <Link
+                    href="/contratos"
+                    className="rounded-lg px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  >
+                    Contratos
+                  </Link>
+                  <Link
+                    href="/orgaos"
+                    className="rounded-lg px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  >
+                    Órgãos
+                  </Link>
+                  <Link
+                    href="/judicial"
+                    className="rounded-lg px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  >
+                    Judiciário
+                  </Link>
+                  <Link
+                    href="/sobre"
+                    className="rounded-lg px-3 py-2 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                  >
+                    Sobre
+                  </Link>
+                </div>
+              </details>
             </div>
             <div className="shrink-0">
               <ThemeToggle temaInicial={tema} />

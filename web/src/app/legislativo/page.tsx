@@ -126,7 +126,7 @@ export default async function LegislativoPage({
         ))}
       </div>
 
-      <p className="mt-4 text-xs text-neutral-400">Clique em uma votação para ver a ementa completa e o voto de todos os senadores.</p>
+      <p className="mt-4 text-xs text-neutral-500 dark:text-neutral-400">Clique em uma votação para ver a ementa completa e o voto de todos os senadores.</p>
 
       <ul className="mt-2 divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
         {votacoes.map((v, i) => (

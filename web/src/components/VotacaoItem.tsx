@@ -48,7 +48,7 @@ export default function VotacaoItem({ votacao }: { votacao: VotacaoSenado }) {
             >
               {votacao.descricaoResultado}
             </span>
-            <span className="text-neutral-400">↗</span>
+            <span className="text-neutral-500 dark:text-neutral-400">↗</span>
           </div>
         </div>
       </Link>

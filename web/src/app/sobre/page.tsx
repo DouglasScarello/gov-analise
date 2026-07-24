@@ -101,7 +101,7 @@ export default function SobrePage() {
         </ul>
       </section>
 
-      <p className="mt-8 text-xs text-neutral-400">
+      <p className="mt-8 text-xs text-neutral-500 dark:text-neutral-400">
         Projeto de uso educacional e de pesquisa, distribuído sob licença MIT.
       </p>
     </div>
