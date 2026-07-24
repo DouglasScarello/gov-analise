@@ -12,6 +12,20 @@ function formatarMoeda(valor: number | null) {
   return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+const VALORES_INVALIDOS = ["#NULO", "#NULO#", "#NE", "#NE#", "NÃO DIVULGÁVEL", "NÃO INFORMADO"];
+
+function campoValido(valor: string | null | undefined): valor is string {
+  return !!valor && !VALORES_INVALIDOS.includes(valor.toUpperCase());
+}
+
+function titleCase(valor: string) {
+  return valor
+    .toLowerCase()
+    .split(" ")
+    .map((p) => (p.length > 2 ? p[0].toUpperCase() + p.slice(1) : p))
+    .join(" ");
+}
+
 export default async function PoliticoPage({
   params,
 }: {
@@ -65,6 +79,76 @@ export default async function PoliticoPage({
           </span>
         )}
       </div>
+
+      {(campoValido(pessoa.genero) || campoValido(pessoa.corRaca) || campoValido(pessoa.escolaridade) || campoValido(pessoa.ocupacao)) && (
+        <dl className="mt-6 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+          {campoValido(pessoa.genero) && (
+            <div>
+              <dt className="text-neutral-500">Gênero</dt>
+              <dd className="font-medium">{titleCase(pessoa.genero)}</dd>
+            </div>
+          )}
+          {campoValido(pessoa.corRaca) && (
+            <div>
+              <dt className="text-neutral-500">Cor/raça (autodeclarada)</dt>
+              <dd className="font-medium">{titleCase(pessoa.corRaca)}</dd>
+            </div>
+          )}
+          {campoValido(pessoa.escolaridade) && (
+            <div>
+              <dt className="text-neutral-500">Escolaridade</dt>
+              <dd className="font-medium">{titleCase(pessoa.escolaridade)}</dd>
+            </div>
+          )}
+          {campoValido(pessoa.ocupacao) && (
+            <div>
+              <dt className="text-neutral-500">Ocupação declarada</dt>
+              <dd className="font-medium">{titleCase(pessoa.ocupacao)}</dd>
+            </div>
+          )}
+        </dl>
+      )}
+
+      {pessoa.totalProposicoes > 0 && (
+        <section className="mt-8">
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            Proposições de autoria
+          </h2>
+          <p className="mb-3 text-sm text-neutral-600 dark:text-neutral-400">
+            <span className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+              {pessoa.totalProposicoes}
+            </span>{" "}
+            {pessoa.totalProposicoes === 1 ? "proposição de autoria" : "proposições de autoria"} — projetos
+            de lei, propostas de emenda, requerimentos e emendas, como autor principal ou coautor,
+            incluindo as de legislaturas anteriores.
+          </p>
+          <ul className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+            {pessoa.proposicoesRecentes.map((p, i) => (
+              <li key={i} className="px-4 py-3">
+                <a
+                  href={p.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+                >
+                  {p.tipoSigla} {p.numero}/{p.ano}
+                </a>
+                {p.ementa && (
+                  <p className="mt-1 line-clamp-2 text-sm text-neutral-500">{p.ementa}</p>
+                )}
+                <p className="mt-1 text-xs text-neutral-400">
+                  {p.casa === "Camara" ? "Câmara" : "Senado"} · {formatarData(p.dataApresentacao)}
+                </p>
+              </li>
+            ))}
+          </ul>
+          {pessoa.totalProposicoes > pessoa.proposicoesRecentes.length && (
+            <p className="mt-2 text-xs text-neutral-400">
+              Mostrando as {pessoa.proposicoesRecentes.length} mais recentes de {pessoa.totalProposicoes}.
+            </p>
+          )}
+        </section>
+      )}
 
       {(pessoa.legislaturasCamara.length > 0 || pessoa.legislaturasSenado.length > 0) && (
         <section className="mt-8">

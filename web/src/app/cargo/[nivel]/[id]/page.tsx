@@ -16,6 +16,20 @@ const CARGO_LABEL: Record<string, string> = {
   VEREADOR: "Vereador(a)",
 };
 
+const VALORES_INVALIDOS = ["#NULO", "#NULO#", "#NE", "#NE#", "NÃO DIVULGÁVEL", "NÃO INFORMADO"];
+
+function campoValido(valor: string | null | undefined): valor is string {
+  return !!valor && !VALORES_INVALIDOS.includes(valor.toUpperCase());
+}
+
+function titleCase(valor: string) {
+  return valor
+    .toLowerCase()
+    .split(" ")
+    .map((p) => (p.length > 2 ? p[0].toUpperCase() + p.slice(1) : p))
+    .join(" ");
+}
+
 function iniciais(nome: string) {
   const partes = nome.trim().split(/\s+/);
   return ((partes[0]?.[0] ?? "") + (partes[1]?.[0] ?? "")).toUpperCase();
@@ -56,6 +70,8 @@ export default async function CargoPoliticoPage({
   const situacao = federal ? null : (pessoa.DS_SIT_TOT_TURNO as string | undefined);
   const ocupacao = federal ? null : (pessoa.DS_OCUPACAO as string | undefined);
   const escolaridade = federal ? null : (pessoa.DS_GRAU_INSTRUCAO as string | undefined);
+  const genero = federal ? null : (pessoa.DS_GENERO as string | undefined);
+  const corRaca = federal ? null : (pessoa.DS_COR_RACA as string | undefined);
   const anoEleicao = federal ? null : (pessoa.ANO_ELEICAO as string | undefined);
   const sancoes = pessoa.sancoesVinculadas;
 
@@ -99,16 +115,28 @@ export default async function CargoPoliticoPage({
               <dd className="font-medium">{nomeCompleto}</dd>
             </div>
           )}
-          {ocupacao && (
+          {campoValido(genero) && (
             <div>
-              <dt className="text-neutral-500">Ocupação declarada</dt>
-              <dd className="font-medium">{ocupacao}</dd>
+              <dt className="text-neutral-500">Gênero</dt>
+              <dd className="font-medium">{titleCase(genero)}</dd>
             </div>
           )}
-          {escolaridade && (
+          {campoValido(corRaca) && (
+            <div>
+              <dt className="text-neutral-500">Cor/raça (autodeclarada)</dt>
+              <dd className="font-medium">{titleCase(corRaca)}</dd>
+            </div>
+          )}
+          {campoValido(ocupacao) && (
+            <div>
+              <dt className="text-neutral-500">Ocupação declarada</dt>
+              <dd className="font-medium">{titleCase(ocupacao)}</dd>
+            </div>
+          )}
+          {campoValido(escolaridade) && (
             <div>
               <dt className="text-neutral-500">Escolaridade</dt>
-              <dd className="font-medium">{escolaridade}</dd>
+              <dd className="font-medium">{titleCase(escolaridade)}</dd>
             </div>
           )}
           {anoEleicao && (

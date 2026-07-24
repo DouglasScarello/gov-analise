@@ -112,6 +112,42 @@ def get_votacoes_todos_senadores(codigos: list[str]) -> list[dict]:
     return todas_votacoes
 
 
+def get_autorias_senador(codigo: str) -> list[dict]:
+    """Retorna as matérias de autoria de um senador específico. Endpoint legado
+    (marcado como descontinuado pelo Senado, com substituto sugerido em
+    /dadosabertos/processo), mas ainda funcional e é o único que filtra
+    matérias por autor de forma direta — /processo não expõe esse filtro."""
+    data = _get_json(f"{BASE_URL}/senador/{codigo}/autorias.json")
+    if not data:
+        return []
+
+    parlamentar = data.get("MateriasAutoriaParlamentar", {}).get("Parlamentar", {})
+    autorias = (parlamentar.get("Autorias") or {}).get("Autoria", [])
+    if isinstance(autorias, dict):
+        autorias = [autorias]
+
+    registros = []
+    for a in autorias:
+        materia = a.get("Materia", {})
+        registros.append({**materia, "_codigoSenador": codigo})
+    return registros
+
+
+def get_autorias_todos_senadores(codigos: list[str]) -> list[dict]:
+    """Coleta matérias de autoria de uma lista de senadores, com pausa entre
+    requisições."""
+    todas: list[dict] = []
+    total = len(codigos)
+
+    for i, codigo in enumerate(codigos, start=1):
+        print(f"[senado_tracker] Autorias {i}/{total} (senador {codigo})...")
+        todas.extend(get_autorias_senador(codigo))
+        time.sleep(REQUEST_DELAY)
+
+    print(f"[senado_tracker] Total de matérias de autoria coletadas: {len(todas)}")
+    return todas
+
+
 def get_processos(ano: Optional[int] = None, limite: int = 1000) -> list[dict]:
     """
     Retorna processos/matérias legislativas (tramitando ou não) via API nova.

@@ -19,6 +19,7 @@ from .unify import (
     unificar_contratos_publicos,
     unificar_entidades_sancionadas,
     unificar_pessoas_politicas,
+    unificar_proposicoes,
     unificar_tse_candidatos_geral,
 )
 
@@ -35,8 +36,10 @@ log = logging.getLogger(__name__)
 FONTES_JSON = [
     ("camara", "deputados", clean.limpar_camara_deputados),
     ("camara", "legislaturas", clean.limpar_camara_legislaturas),
+    ("camara", "proposicoes", clean.limpar_camara_proposicoes),
     ("senado", "senadores", clean.limpar_senado_senadores),
     ("senado", "legislaturas", clean.limpar_senado_legislaturas),
+    ("senado", "autorias", clean.limpar_senado_autorias),
     ("senado", "processos", clean.limpar_senado_processos),
     ("senado", "votacoes", clean.limpar_senado_votacoes),
     ("bacen", "series", clean.limpar_bacen_series),
@@ -121,6 +124,12 @@ def build() -> dict:
         staging.get("transparencia_contratos", pd.DataFrame()),
     )
     resultado["contratos_publicos"] = _gravar_tabela(con, "contratos_publicos", contratos)
+
+    proposicoes = unificar_proposicoes(
+        staging.get("camara_proposicoes", pd.DataFrame()),
+        staging.get("senado_autorias", pd.DataFrame()),
+    )
+    resultado["proposicoes_legislativas"] = _gravar_tabela(con, "proposicoes_legislativas", proposicoes)
 
     con.close()
     return resultado

@@ -29,12 +29,28 @@ export type LegislaturaSenado = {
   participacao: string | null;
 };
 
+export type ProposicaoLegislativa = {
+  casa: "Camara" | "Senado";
+  tipoSigla: string;
+  numero: string;
+  ano: string;
+  ementa: string | null;
+  dataApresentacao: string | null;
+  url: string;
+};
+
 export type PessoaDetalhe = Pessoa & {
+  genero?: string | null;
+  corRaca?: string | null;
+  escolaridade?: string | null;
+  ocupacao?: string | null;
   sancoesVinculadas: Sancao[];
   contratosVinculados: Contrato[];
   votacoesRecentes: Votacao[];
   legislaturasCamara: LegislaturaCamara[];
   legislaturasSenado: LegislaturaSenado[];
+  totalProposicoes: number;
+  proposicoesRecentes: ProposicaoLegislativa[];
 };
 
 export type Sancao = {

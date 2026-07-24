@@ -27,6 +27,44 @@ def limpar_camara_legislaturas(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def limpar_camara_proposicoes(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df
+    out = pd.DataFrame({
+        "casa": "Camara",
+        "autorId": df["_idDeputadoAutor"].astype(str),
+        "tipoSigla": df["siglaTipo"],
+        "numero": df["numero"].astype(str),
+        "ano": df["ano"].astype(str),
+        "ementa": df["ementa"],
+        "dataApresentacao": pd.to_datetime(df["dataApresentacao"], errors="coerce"),
+        "url": df["id"].apply(
+            lambda i: f"https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao={i}"
+        ),
+    })
+    out = out.drop_duplicates(subset=["casa", "autorId", "tipoSigla", "numero", "ano"])
+    return out
+
+
+def limpar_senado_autorias(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df
+    out = pd.DataFrame({
+        "casa": "Senado",
+        "autorId": df["_codigoSenador"].astype(str),
+        "tipoSigla": df["Sigla"],
+        "numero": df["Numero"].astype(str),
+        "ano": df["Ano"].astype(str),
+        "ementa": df["Ementa"],
+        "dataApresentacao": pd.to_datetime(df["Data"], errors="coerce"),
+        "url": df["Codigo"].apply(
+            lambda c: f"https://www25.senado.leg.br/web/atividade/materias/-/materia/{c}"
+        ),
+    })
+    out = out.drop_duplicates(subset=["casa", "autorId", "tipoSigla", "numero", "ano"])
+    return out
+
+
 def limpar_senado_legislaturas(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df
@@ -132,6 +170,7 @@ def limpar_tse_candidatos(df: pd.DataFrame) -> pd.DataFrame:
     ]
     out = df[colunas].copy()
     out["nome_normalizado"] = out["NM_CANDIDATO"].map(normalizar_nome)
+    out["nome_urna_normalizado"] = out["NM_URNA_CANDIDATO"].map(normalizar_nome)
     return out
 
 
