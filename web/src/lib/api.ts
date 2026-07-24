@@ -39,6 +39,15 @@ export type ProposicaoLegislativa = {
   url: string;
 };
 
+export type Candidatura = {
+  ano: string;
+  cargo: string;
+  uf: string | null;
+  municipio: string | null;
+  partido: string | null;
+  situacao: string | null;
+};
+
 export type PessoaDetalhe = Pessoa & {
   genero?: string | null;
   corRaca?: string | null;
@@ -51,6 +60,7 @@ export type PessoaDetalhe = Pessoa & {
   legislaturasSenado: LegislaturaSenado[];
   totalProposicoes: number;
   proposicoesRecentes: ProposicaoLegislativa[];
+  candidaturas: Candidatura[];
 };
 
 export type Sancao = {
@@ -113,6 +123,7 @@ export type PoliticoCargo = {
 export type PoliticoCargoDetalhe = Record<string, unknown> & {
   nivel: Nivel;
   sancoesVinculadas: Sancao[];
+  candidaturas: Candidatura[];
 };
 
 export type Paginated<T> = {
@@ -333,6 +344,100 @@ export function listarProcessosJudiciais(
 
 export function listarTribunaisDisponiveis(): Promise<TribunalContagem[]> {
   return apiFetch(`/judicial/tribunais`, 0);
+}
+
+export type ProcessoSenado = {
+  id: string;
+  identificacao: string | null;
+  tipoDocumento: string | null;
+  tipoConteudo: string | null;
+  ementa: string | null;
+  autoria: string | null;
+  situacaoAtual: string | null;
+  tramitando: string | null;
+  dataApresentacao: string | null;
+  dataSituacaoAtual: string | null;
+  dataUltimaAtualizacao: string | null;
+  urlDocumento: string | null;
+};
+
+export function listarProcessosSenado(
+  params: { tramitando?: string; limit?: number } = {}
+): Promise<ProcessoSenado[]> {
+  const qs = new URLSearchParams(
+    Object.entries(params)
+      .filter(([, v]) => v !== undefined && v !== "")
+      .map(([k, v]) => [k, String(v)])
+  );
+  return apiFetch(`/legislativo/senado/processos?${qs.toString()}`, 0);
+}
+
+export type Orgao = { codigo: string; descricao: string };
+
+export type OrgaoDetalhe = Orgao & {
+  contratosVinculados: Contrato[];
+  sancoesVinculadas: Sancao[];
+};
+
+export function listarOrgaos(
+  params: { nome?: string; limit?: number; offset?: number } = {}
+): Promise<Paginated<Orgao>> {
+  const qs = new URLSearchParams(
+    Object.entries(params)
+      .filter(([, v]) => v !== undefined && v !== "")
+      .map(([k, v]) => [k, String(v)])
+  );
+  return apiFetch(`/orgaos?${qs.toString()}`, 0);
+}
+
+export function obterOrgao(codigo: string): Promise<OrgaoDetalhe> {
+  return apiFetch(`/orgaos/${encodeURIComponent(codigo)}`, 0);
+}
+
+export type TipoProposicao = { tipoSigla: string; total: number };
+
+export function listarTiposProposicao(): Promise<TipoProposicao[]> {
+  return apiFetch(`/proposicoes/tipos`, 0);
+}
+
+export function listarProposicoes(
+  params: {
+    casa?: string;
+    tipoSigla?: string;
+    ano?: number;
+    q?: string;
+    limit?: number;
+    offset?: number;
+  } = {}
+): Promise<Paginated<ProposicaoLegislativa>> {
+  const qs = new URLSearchParams(
+    Object.entries(params)
+      .filter(([, v]) => v !== undefined && v !== "")
+      .map(([k, v]) => [k, String(v)])
+  );
+  return apiFetch(`/proposicoes?${qs.toString()}`, 0);
+}
+
+export type EnteFederativo = {
+  cod_ibge: number;
+  ente: string;
+  uf: string;
+  regiao: string;
+  esfera: string;
+  exercicio: number;
+  populacao: number | null;
+  cnpj: string | null;
+};
+
+export function listarEntesFederativos(
+  params: { uf?: string; esfera?: string; limit?: number } = {}
+): Promise<EnteFederativo[]> {
+  const qs = new URLSearchParams(
+    Object.entries(params)
+      .filter(([, v]) => v !== undefined && v !== "")
+      .map(([k, v]) => [k, String(v)])
+  );
+  return apiFetch(`/financas/entes?${qs.toString()}`, 0);
 }
 
 export const UFS = [

@@ -47,6 +47,18 @@ export default async function LegislativoPage({
         Votações nominais dos senadores em exercício, por matéria e resultado.
       </p>
 
+      <div className="mt-4 flex gap-2 text-sm">
+        <span className="rounded-full border border-blue-500 bg-blue-50 px-3 py-1 font-medium text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+          Votações
+        </span>
+        <Link
+          href="/legislativo/processos"
+          className="rounded-full border border-neutral-300 px-3 py-1 hover:border-blue-500 hover:text-blue-600 dark:border-neutral-700"
+        >
+          Matérias em tramitação
+        </Link>
+      </div>
+
       <div className="mt-4">
         <FiltroNome action="/legislativo" valorInicial={senador} placeholder="Buscar por senador..." />
       </div>

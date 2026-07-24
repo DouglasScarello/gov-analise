@@ -1,14 +1,19 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SerieLineChart from "@/components/charts/SerieLineChart";
-import { listarBalanco, listarIndicadoresUf } from "@/lib/api";
+import { listarBalanco, listarEntesFederativos, listarIndicadoresUf } from "@/lib/api";
 import { NOME_POR_UF } from "@/lib/estados";
 
 function formatarMoeda(valor: number) {
   return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 }
 
+function formatarNumero(valor: number) {
+  return valor.toLocaleString("pt-BR");
+}
+
 const CONTA_TOP_NIVEL = /^P\d\.0\.0\.0\.0\.00\.00$/;
+const MUNICIPIOS_EXIBIDOS = 30;
 
 export default async function EstadoPage({ params }: { params: Promise<{ uf: string }> }) {
   const { uf: ufParam } = await params;
@@ -16,11 +21,15 @@ export default async function EstadoPage({ params }: { params: Promise<{ uf: str
   const nomeEstado = NOME_POR_UF[uf];
   if (!nomeEstado) notFound();
 
-  const [pib, populacao, balanco] = await Promise.all([
+  const [pib, populacao, balanco, municipios] = await Promise.all([
     listarIndicadoresUf("pib_uf"),
     listarIndicadoresUf("populacao_estimada_uf"),
     listarBalanco(uf, 200),
+    listarEntesFederativos({ uf, esfera: "M", limit: 500 }),
   ]);
+
+  const municipiosOrdenados = [...municipios].sort((a, b) => (b.populacao ?? 0) - (a.populacao ?? 0));
+  const municipiosExibidos = municipiosOrdenados.slice(0, MUNICIPIOS_EXIBIDOS);
 
   const pibEstado = pib
     .filter((r) => r.localidadeNome === nomeEstado)
@@ -71,6 +80,32 @@ export default async function EstadoPage({ params }: { params: Promise<{ uf: str
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {municipiosExibidos.length > 0 && (
+        <div className="mt-6 rounded-xl border border-neutral-200 p-4 dark:border-neutral-800">
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              Municípios mais populosos
+            </h2>
+            <span className="text-xs text-neutral-500">
+              {municipiosExibidos.length} de {municipios.length}
+            </span>
+          </div>
+          <ul className="mt-3 divide-y divide-neutral-200 dark:divide-neutral-800">
+            {municipiosExibidos.map((m) => (
+              <li key={m.cod_ibge} className="flex items-center justify-between py-2 text-sm">
+                <span>{m.ente}</span>
+                <span className="font-medium text-neutral-600 dark:text-neutral-400">
+                  {m.populacao != null ? `${formatarNumero(m.populacao)} hab.` : "população não informada"}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-neutral-400">
+            Cadastro de entes do SICONFI — balanço patrimonial só é coletado em nível estadual/federal.
+          </p>
         </div>
       )}
 

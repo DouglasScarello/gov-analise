@@ -12,7 +12,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .db import WAREHOUSE_PATH
-from .routers import busca, cargos, contratos, indicadores, municipais, pessoas, sancoes
+from .routers import (busca, cargos, contratos, indicadores, municipais,
+                      orgaos, pessoas, proposicoes, sancoes)
 
 load_dotenv()
 
@@ -46,6 +47,8 @@ app.include_router(busca.router)
 app.include_router(indicadores.router)
 app.include_router(municipais.router)
 app.include_router(cargos.router)
+app.include_router(orgaos.router)
+app.include_router(proposicoes.router)
 
 
 @app.get("/", tags=["health"])

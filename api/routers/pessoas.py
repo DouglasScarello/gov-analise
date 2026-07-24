@@ -13,7 +13,9 @@ router = APIRouter(prefix="/pessoas", tags=["pessoas"])
 
 @router.get("")
 def listar_pessoas(
-    nome: Optional[str] = Query(None, description="Busca parcial por nome (case-insensitive)"),
+    nome: Optional[str] = Query(
+        None, description="Busca parcial por nome (case-insensitive)"
+    ),
     casa: Optional[str] = Query(None, description="Câmara | Senado | Câmara e Senado"),
     partido: Optional[str] = Query(None, description="Sigla do partido"),
     uf: Optional[str] = Query(None, description="Sigla da UF"),
@@ -39,7 +41,14 @@ def listar_pessoas(
     where = f"WHERE {' AND '.join(condicoes)}" if condicoes else ""
     select = """slug, nome, casa, camaraId, camaraPartido, camaraUf, camaraFoto,
                senadoId, senadoPartido, senadoUf, senadoFoto"""
-    return paginar(select, f"FROM pessoas_politicas {where}", "ORDER BY nome", params, limit, offset)
+    return paginar(
+        select,
+        f"FROM pessoas_politicas {where}",
+        "ORDER BY nome",
+        params,
+        limit,
+        offset,
+    )
 
 
 @router.get("/{slug}")
@@ -114,6 +123,22 @@ def detalhe_pessoa(slug: str):
             [str(int(float(pessoa["senadoId"])))],
         )
 
+    # Histórico completo de candidaturas no TSE (eleitas ou não, qualquer cargo/ano) —
+    # cruzamento por nome legal ou nome de urna, mesmo critério usado para os dados
+    # biográficos acima; aqui sem filtro de cargo porque o objetivo é justamente ver
+    # toda a trajetória eleitoral, não só o mandato atual.
+    candidaturas = query(
+        "SELECT ANO_ELEICAO AS ano, DS_CARGO AS cargo, SG_UF AS uf, NM_UE AS municipio, "
+        "SG_PARTIDO AS partido, DS_SIT_TOT_TURNO AS situacao "
+        "FROM stg_tse_candidatos_geral WHERE nome_normalizado = ? OR nome_urna_normalizado = ? "
+        "UNION ALL "
+        "SELECT ANO_ELEICAO AS ano, DS_CARGO AS cargo, SG_UF AS uf, NM_UE AS municipio, "
+        "SG_PARTIDO AS partido, DS_SIT_TOT_TURNO AS situacao "
+        "FROM stg_tse_candidatos_municipal_geral WHERE nome_normalizado = ? OR nome_urna_normalizado = ? "
+        "ORDER BY ano DESC",
+        [nome_normalizado, nome_normalizado, nome_normalizado, nome_normalizado],
+    )
+
     return {
         **pessoa,
         **(bio or {}),
@@ -124,4 +149,5 @@ def detalhe_pessoa(slug: str):
         "legislaturasSenado": legislaturas_senado,
         "totalProposicoes": len(proposicoes),
         "proposicoesRecentes": proposicoes[:20],
+        "candidaturas": candidaturas,
     }

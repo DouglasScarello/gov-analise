@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { obterPessoa, obterPoliticoCargo, type Nivel, type Sancao } from "@/lib/api";
+import { obterPessoa, obterPoliticoCargo, type Candidatura, type Nivel, type Sancao } from "@/lib/api";
 
 const CARGO_LABEL: Record<string, string> = {
   "DEPUTADO FEDERAL": "Deputado(a) Federal",
@@ -64,6 +64,7 @@ type PerfilComum = {
   escolaridade: string | null;
   ocupacao: string | null;
   sancoes: Sancao[];
+  candidaturas: Candidatura[];
 };
 
 export default async function PoliticoPage({
@@ -96,6 +97,7 @@ export default async function PoliticoPage({
         escolaridade: pessoaFederal.escolaridade ?? null,
         ocupacao: pessoaFederal.ocupacao ?? null,
         sancoes: pessoaFederal.sancoesVinculadas,
+        candidaturas: pessoaFederal.candidaturas,
       };
     } else {
       const pessoa = await obterPoliticoCargo(nivelParam, id);
@@ -117,6 +119,7 @@ export default async function PoliticoPage({
         escolaridade: (pessoa.DS_GRAU_INSTRUCAO as string | undefined) ?? null,
         ocupacao: (pessoa.DS_OCUPACAO as string | undefined) ?? null,
         sancoes: pessoa.sancoesVinculadas,
+        candidaturas: pessoa.candidaturas,
       };
     }
   } catch {
@@ -199,6 +202,43 @@ export default async function PoliticoPage({
             </div>
           )}
         </dl>
+      )}
+
+      {comum.candidaturas.length > 0 && (
+        <section className="mt-8">
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+            Todas as candidaturas no TSE
+          </h2>
+          <ul className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+            {comum.candidaturas.map((c, i) => (
+              <li key={i} className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
+                <div>
+                  <p className="font-medium">
+                    {c.ano} — {CARGO_LABEL[c.cargo] ?? titleCase(c.cargo)}
+                  </p>
+                  <p className="text-neutral-500">
+                    {[c.partido, c.municipio, c.uf].filter(Boolean).join(" · ")}
+                  </p>
+                </div>
+                {c.situacao && (
+                  <span
+                    className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
+                      c.situacao.toUpperCase().includes("ELEITO")
+                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                        : "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300"
+                    }`}
+                  >
+                    {titleCase(c.situacao)}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-neutral-400">
+            Cruzamento por nome no TSE — inclui candidaturas não eleitas e de qualquer nível
+            (federal, estadual, municipal), pode incluir homônimos.
+          </p>
+        </section>
       )}
 
       {federal && pessoaFederal && pessoaFederal.totalProposicoes > 0 && (
