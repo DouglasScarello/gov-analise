@@ -35,14 +35,20 @@ export default async function EconomiaPage() {
     Promise.all(INDICADORES_UF.map((i) => listarIndicadoresUf(i.chave))),
   ]);
 
-  const series = SERIES_CONFIG.map((config, i) => ({
-    chave: config.chave,
-    titulo: config.titulo,
-    unidade: config.unidade,
-    semântica: config.semântica,
-    seção: config.seção,
-    pontos: [...(seriesRaw[i] || [])].reverse().map((p: any) => ({ data: p.data, valor: p.valor })),
-  }));
+  const series = SERIES_CONFIG.map((config, i) => {
+    const raw = seriesRaw[i] || [];
+    const reversed = [...raw].reverse();
+    const pontos = reversed.map((p: any) => ({ data: p.data, valor: p.valor }));
+
+    return {
+      chave: config.chave,
+      titulo: config.titulo,
+      unidade: config.unidade,
+      semântica: config.semântica,
+      seção: config.seção,
+      pontos,
+    };
+  });
 
   const indicadores = indicadoresRaw.map((raw, i) => ({ ...INDICADORES_UF[i], registros: raw }));
 
@@ -61,7 +67,7 @@ export default async function EconomiaPage() {
             <Link key={s.chave} href={`/economia/${s.chave}`} className="hover:opacity-80 transition-opacity">
               <StatTile
                 titulo={s.titulo}
-                valor={s.pontos[0]?.valor}
+                valor={s.pontos[s.pontos.length - 1]?.valor}
                 unidade={s.unidade}
                 pontos={s.pontos}
                 semântica={s.semântica}
