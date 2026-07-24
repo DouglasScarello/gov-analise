@@ -43,7 +43,7 @@ export default async function BuscaPage({
             {resultado.pessoas.map((p) => (
               <li key={p.slug}>
                 <Link
-                  href={`/politico/${p.slug}`}
+                  href={`/politico/federal/${p.slug}`}
                   className="flex items-center justify-between px-4 py-3 hover:bg-neutral-100 dark:hover:bg-neutral-900"
                 >
                   <span className="font-medium">{p.nome}</span>

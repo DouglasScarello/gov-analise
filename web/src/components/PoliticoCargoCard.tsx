@@ -26,7 +26,7 @@ export default function PoliticoCargoCard({ pessoa }: { pessoa: PoliticoCargo })
 
   return (
     <Link
-      href={`/cargo/${pessoa.nivel}/${encodeURIComponent(pessoa.id)}`}
+      href={`/politico/${pessoa.nivel}/${encodeURIComponent(pessoa.id)}`}
       className="flex items-center gap-4 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-400 hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900"
     >
       {pessoa.foto ? (
