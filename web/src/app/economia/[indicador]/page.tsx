@@ -135,7 +135,7 @@ export default async function IndicadorPage({ params }: { params: Promise<{ indi
             <div className="rounded-xl border border-neutral-200 p-4 dark:border-neutral-800">
               <p className="text-xs text-neutral-500">Valor mais recente</p>
               <p className="mt-1 text-2xl font-bold">
-                {dados[0].valor.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
+                {dados[dados.length - 1].valor.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
                 <span className="text-sm text-neutral-500 ml-1">{config.unidade}</span>
               </p>
             </div>
