@@ -6,9 +6,9 @@ político; aqui ficam pesquisáveis por conta própria.
 
 from typing import Optional
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 
-from ..db import paginar, query
+from ..db import paginar, query, query_one
 
 router = APIRouter(prefix="/proposicoes", tags=["proposicoes"])
 
@@ -56,3 +56,16 @@ def listar_proposicoes(
         limit,
         offset,
     )
+
+
+@router.get("/detalhe")
+def detalhe_proposicao(url: str = Query(..., description="URL oficial da proposição (chave única — proposições têm 1 linha por autor)")):
+    linhas = query(
+        "SELECT casa, autorId, tipoSigla, numero, ano, ementa, dataApresentacao, url "
+        "FROM proposicoes_legislativas WHERE url = ?",
+        [url],
+    )
+    if not linhas:
+        raise HTTPException(status_code=404, detail="Proposição não encontrada")
+    base = linhas[0]
+    return {**base, "totalAutores": len(linhas), "autoresIds": [l["autorId"] for l in linhas if l["autorId"]]}

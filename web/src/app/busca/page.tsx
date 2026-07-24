@@ -64,11 +64,16 @@ export default async function BuscaPage({
           </h2>
           <ul className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
             {resultado.sancoes.map((s) => (
-              <li key={s.id} className="px-4 py-3">
-                <p className="font-medium">{s.sancionadoNome}</p>
-                <p className="text-sm text-neutral-500">
-                  {s.tipoSancao} · {s.origemSancao}
-                </p>
+              <li key={s.id}>
+                <Link
+                  href={`/sancoes/${s.id}`}
+                  className="block px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
+                >
+                  <p className="font-medium">{s.sancionadoNome}</p>
+                  <p className="text-sm text-neutral-500">
+                    {s.tipoSancao} · {s.origemSancao}
+                  </p>
+                </Link>
               </li>
             ))}
           </ul>
@@ -82,12 +87,17 @@ export default async function BuscaPage({
           </h2>
           <ul className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
             {resultado.contratos.map((c, i) => (
-              <li key={i} className="px-4 py-3">
-                <p className="font-medium">{c.orgaoNome}</p>
-                <p className="text-sm text-neutral-500 line-clamp-2">{c.objeto}</p>
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                  {formatarMoeda(c.valor)} {c.fornecedorNome ? `· ${c.fornecedorNome}` : ""}
-                </p>
+              <li key={c.id ?? i}>
+                <Link
+                  href={c.id ? `/contratos/${c.id}` : "#"}
+                  className="block px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
+                >
+                  <p className="font-medium">{c.orgaoNome}</p>
+                  <p className="text-sm text-neutral-500 line-clamp-2">{c.objeto}</p>
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                    {formatarMoeda(c.valor)} {c.fornecedorNome ? `· ${c.fornecedorNome}` : ""}
+                  </p>
+                </Link>
               </li>
             ))}
           </ul>

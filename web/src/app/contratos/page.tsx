@@ -93,17 +93,22 @@ export default async function ContratosPage({
 
       <ul className="mt-6 divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
         {contratos.map((c, i) => (
-          <li key={i} className="px-4 py-3">
-            <p className="font-medium">{c.orgaoNome}</p>
-            <p className="text-sm text-neutral-500 line-clamp-2">{c.objeto}</p>
-            <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-              {formatarMoeda(c.valor)}
-              {c.fornecedorNome ? ` · ${c.fornecedorNome}` : ""}
-              {c.uf ? ` · ${c.uf}` : ""}
-            </p>
-            <p className="mt-1 text-xs text-neutral-500">
-              {formatarData(c.data)} · {c.modalidade ?? c.fonte}
-            </p>
+          <li key={c.id ?? i}>
+            <Link
+              href={c.id ? `/contratos/${c.id}` : "#"}
+              className="block px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
+            >
+              <p className="font-medium">{c.orgaoNome}</p>
+              <p className="text-sm text-neutral-500 line-clamp-2">{c.objeto}</p>
+              <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+                {formatarMoeda(c.valor)}
+                {c.fornecedorNome ? ` · ${c.fornecedorNome}` : ""}
+                {c.uf ? ` · ${c.uf}` : ""}
+              </p>
+              <p className="mt-1 text-xs text-neutral-500">
+                {formatarData(c.data)} · {c.modalidade ?? c.fonte}
+              </p>
+            </Link>
           </li>
         ))}
       </ul>

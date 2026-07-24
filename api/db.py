@@ -13,6 +13,17 @@ import pandas as pd
 
 WAREHOUSE_PATH = Path(__file__).parent.parent / "data" / "warehouse" / "camara_analytics.duckdb"
 
+# contratos_publicos não tem uma coluna de ID própria (é uma união de duas
+# fontes sem chave em comum) — usamos um hash estável do conteúdo da linha
+# como identificador para a página de detalhe. Toda query que devolve
+# contratos para o frontend precisa incluir essa mesma expressão.
+CONTRATO_HASH_ID = (
+    "md5(fonte || orgaoNome || COALESCE(orgaoDocumento,'') || COALESCE(uf,'') || "
+    "objeto || COALESCE(modalidade,'') || COALESCE(CAST(valor AS VARCHAR),'') || "
+    "COALESCE(CAST(data AS VARCHAR),'') || COALESCE(situacao,'') || "
+    "COALESCE(fornecedorNome,'') || COALESCE(fornecedorDocumento,'')) AS id"
+)
+
 
 def get_connection() -> duckdb.DuckDBPyConnection:
     if not WAREHOUSE_PATH.exists():

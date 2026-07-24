@@ -46,6 +46,12 @@ function formatarMoeda(valor: number | null | undefined) {
   return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+function formatarNumeroProposicao(numero: string, ano: string) {
+  const n = numero.endsWith(".0") ? numero.slice(0, -2) : numero;
+  const a = ano.endsWith(".0") ? ano.slice(0, -2) : ano;
+  return `${n}/${a}`;
+}
+
 function ehNivel(v: string): v is Nivel {
   return v === "federal" || v === "estadual" || v === "nacional" || v === "municipal";
 }
@@ -260,19 +266,19 @@ export default async function PoliticoPage({
           </p>
           <ul className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
             {pessoaFederal.proposicoesRecentes.map((p, i) => (
-              <li key={i} className="px-4 py-3">
-                <a
-                  href={p.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+              <li key={i}>
+                <Link
+                  href={`/proposicoes/detalhe?url=${encodeURIComponent(p.url)}`}
+                  className="block px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
                 >
-                  {p.tipoSigla} {p.numero}/{p.ano}
-                </a>
-                {p.ementa && <p className="mt-1 line-clamp-2 text-sm text-neutral-500">{p.ementa}</p>}
-                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                  {p.casa === "Camara" ? "Câmara" : "Senado"} · {formatarData(p.dataApresentacao)}
-                </p>
+                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                    {p.tipoSigla} {formatarNumeroProposicao(p.numero, p.ano)}
+                  </p>
+                  {p.ementa && <p className="mt-1 line-clamp-2 text-sm text-neutral-500">{p.ementa}</p>}
+                  <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                    {p.casa === "Camara" ? "Câmara" : "Senado"} · {formatarData(p.dataApresentacao)}
+                  </p>
+                </Link>
               </li>
             ))}
           </ul>
@@ -322,11 +328,16 @@ export default async function PoliticoPage({
         ) : (
           <ul className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
             {comum.sancoes.map((s) => (
-              <li key={s.id} className="px-4 py-3">
-                <p className="font-medium">{s.sancionadoNome}</p>
-                <p className="text-sm text-neutral-500">
-                  {s.tipoSancao} · {s.origemSancao} · {formatarData(s.dataInicioSancao)}
-                </p>
+              <li key={s.id}>
+                <Link
+                  href={`/sancoes/${s.id}`}
+                  className="block px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
+                >
+                  <p className="font-medium">{s.sancionadoNome}</p>
+                  <p className="text-sm text-neutral-500">
+                    {s.tipoSancao} · {s.origemSancao} · {formatarData(s.dataInicioSancao)}
+                  </p>
+                </Link>
               </li>
             ))}
           </ul>
@@ -347,12 +358,17 @@ export default async function PoliticoPage({
           ) : (
             <ul className="divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
               {pessoaFederal.contratosVinculados.map((c, i) => (
-                <li key={i} className="px-4 py-3">
-                  <p className="font-medium">{c.orgaoNome}</p>
-                  <p className="text-sm text-neutral-500 line-clamp-2">{c.objeto}</p>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                    {formatarMoeda(c.valor)} · {formatarData(c.data)}
-                  </p>
+                <li key={c.id ?? i}>
+                  <Link
+                    href={c.id ? `/contratos/${c.id}` : "#"}
+                    className="block px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
+                  >
+                    <p className="font-medium">{c.orgaoNome}</p>
+                    <p className="text-sm text-neutral-500 line-clamp-2">{c.objeto}</p>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
+                      {formatarMoeda(c.valor)} · {formatarData(c.data)}
+                    </p>
+                  </Link>
                 </li>
               ))}
             </ul>

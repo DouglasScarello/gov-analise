@@ -39,6 +39,12 @@ export type ProposicaoLegislativa = {
   url: string;
 };
 
+export type ProposicaoDetalhe = ProposicaoLegislativa & {
+  autorId: string | null;
+  totalAutores: number;
+  autoresIds: string[];
+};
+
 export type Candidatura = {
   ano: string;
   cargo: string;
@@ -77,6 +83,7 @@ export type Sancao = {
 };
 
 export type Contrato = {
+  id?: string;
   fonte: string;
   orgaoNome: string;
   orgaoDocumento: string | null;
@@ -137,7 +144,7 @@ export type BuscaResultado = {
   termo: string;
   pessoas: Pessoa[];
   sancoes: Pick<Sancao, "id" | "sancionadoNome" | "tipoSancao" | "origemSancao">[];
-  contratos: Pick<Contrato, "fonte" | "orgaoNome" | "fornecedorNome" | "objeto" | "valor">[];
+  contratos: Pick<Contrato, "id" | "fonte" | "orgaoNome" | "fornecedorNome" | "objeto" | "valor">[];
   orgaos: OrgaoSiafi[];
   total: number;
 };
@@ -180,6 +187,14 @@ export function listarContratos(
       .map(([k, v]) => [k, String(v)])
   );
   return apiFetch(`/contratos?${qs.toString()}`, 0);
+}
+
+export function obterSancao(id: number | string): Promise<Sancao> {
+  return apiFetch(`/sancoes/${encodeURIComponent(id)}`, 0);
+}
+
+export function obterContrato(id: string): Promise<Contrato> {
+  return apiFetch(`/contratos/${encodeURIComponent(id)}`, 0);
 }
 
 export function listarTiposDeCargo(): Promise<TipoCargo[]> {
@@ -346,6 +361,10 @@ export function listarTribunaisDisponiveis(): Promise<TribunalContagem[]> {
   return apiFetch(`/judicial/tribunais`, 0);
 }
 
+export function obterProcessoJudicial(id: string): Promise<ProcessoJudicial> {
+  return apiFetch(`/judicial/processos/${encodeURIComponent(id)}`, 0);
+}
+
 export type ProcessoSenado = {
   id: string;
   identificacao: string | null;
@@ -370,6 +389,10 @@ export function listarProcessosSenado(
       .map(([k, v]) => [k, String(v)])
   );
   return apiFetch(`/legislativo/senado/processos?${qs.toString()}`, 0);
+}
+
+export function obterProcessoSenado(id: string): Promise<ProcessoSenado> {
+  return apiFetch(`/legislativo/senado/processos/${encodeURIComponent(id)}`, 0);
 }
 
 export type Orgao = { codigo: string; descricao: string };
@@ -416,6 +439,10 @@ export function listarProposicoes(
       .map(([k, v]) => [k, String(v)])
   );
   return apiFetch(`/proposicoes?${qs.toString()}`, 0);
+}
+
+export function obterProposicao(url: string): Promise<ProposicaoDetalhe> {
+  return apiFetch(`/proposicoes/detalhe?url=${encodeURIComponent(url)}`, 0);
 }
 
 export type EnteFederativo = {

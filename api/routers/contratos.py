@@ -4,9 +4,9 @@ Endpoints de contratos públicos (Compras.gov.br + Portal da Transparência unif
 
 from typing import Optional
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 
-from ..db import paginar
+from ..db import CONTRATOCONTRATO_HASH_ID, paginar, query_one
 
 router = APIRouter(prefix="/contratos", tags=["contratos"])
 
@@ -41,4 +41,14 @@ def listar_contratos(
         params.append(valor_min)
 
     where = f"WHERE {' AND '.join(condicoes)}" if condicoes else ""
-    return paginar("*", f"FROM contratos_publicos {where}", "ORDER BY data DESC", params, limit, offset)
+    return paginar(f"*, {CONTRATO_HASH_ID}", f"FROM contratos_publicos {where}", "ORDER BY data DESC", params, limit, offset)
+
+
+@router.get("/{id}")
+def detalhe_contrato(id: str):
+    contrato = query_one(
+        f"SELECT * FROM (SELECT *, {CONTRATO_HASH_ID} FROM contratos_publicos) WHERE id = ?", [id]
+    )
+    if not contrato:
+        raise HTTPException(status_code=404, detail="Contrato não encontrado")
+    return contrato

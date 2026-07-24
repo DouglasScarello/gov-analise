@@ -77,22 +77,27 @@ export default async function JudicialPage({
 
       <ul className="mt-6 divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
         {processos.map((p) => (
-          <li key={p.id} className="px-4 py-3">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium">{p.numeroProcesso}</p>
-                <p className="mt-1 text-sm text-neutral-500">
-                  {p.classeNome} · {p.orgaoJulgadorNome}
-                </p>
-                <p className="mt-1 text-xs text-neutral-500">
-                  Ajuizado em {formatarData(p.dataAjuizamento)} · última atualização em{" "}
-                  {formatarData(p.dataUltimaAtualizacao)}
-                </p>
+          <li key={p.id}>
+            <Link
+              href={`/judicial/${encodeURIComponent(p.id)}`}
+              className="block px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium">{p.numeroProcesso}</p>
+                  <p className="mt-1 text-sm text-neutral-500">
+                    {p.classeNome} · {p.orgaoJulgadorNome}
+                  </p>
+                  <p className="mt-1 text-xs text-neutral-500">
+                    Ajuizado em {formatarData(p.dataAjuizamento)} · última atualização em{" "}
+                    {formatarData(p.dataUltimaAtualizacao)}
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full border border-neutral-300 px-2.5 py-1 text-xs font-medium dark:border-neutral-700">
+                  {p.tribunal}
+                </span>
               </div>
-              <span className="shrink-0 rounded-full border border-neutral-300 px-2.5 py-1 text-xs font-medium dark:border-neutral-700">
-                {p.tribunal}
-              </span>
-            </div>
+            </Link>
           </li>
         ))}
       </ul>

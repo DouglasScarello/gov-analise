@@ -8,7 +8,7 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 
-from ..db import paginar, query, query_one
+from ..db import CONTRATO_HASH_ID, paginar, query, query_one
 
 router = APIRouter(prefix="/orgaos", tags=["orgaos"])
 
@@ -61,7 +61,8 @@ def detalhe_orgao(codigo: str):
 
     termo = f"%{_termo_busca(orgao['descricao'])}%"
     contratos = query(
-        "SELECT * FROM contratos_publicos WHERE orgaoNome ILIKE ? ORDER BY data DESC LIMIT 20",
+        f"SELECT *, {CONTRATO_HASH_ID} FROM contratos_publicos WHERE orgaoNome ILIKE ? "
+        "ORDER BY data DESC LIMIT 20",
         [termo],
     )
     sancoes = query(

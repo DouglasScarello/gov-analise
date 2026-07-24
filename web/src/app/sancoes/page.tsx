@@ -84,28 +84,33 @@ export default async function SancoesPage({
 
       <ul className="mt-6 divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
         {sancoes.map((s) => (
-          <li key={s.id} className="px-4 py-3">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="font-medium">{s.sancionadoNome}</p>
-                <p className="text-sm text-neutral-500">
-                  {s.tipoSancao}
-                  {s.orgaoSancionador ? ` · ${s.orgaoSancionador}` : ""}
-                </p>
-                <p className="mt-1 text-xs text-neutral-500">
-                  Início: {formatarData(s.dataInicioSancao)}
-                  {s.dataFimSancao ? ` · Fim: ${formatarData(s.dataFimSancao)}` : ""}
-                </p>
+          <li key={s.id}>
+            <Link
+              href={`/sancoes/${s.id}`}
+              className="block px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="font-medium">{s.sancionadoNome}</p>
+                  <p className="text-sm text-neutral-500">
+                    {s.tipoSancao}
+                    {s.orgaoSancionador ? ` · ${s.orgaoSancionador}` : ""}
+                  </p>
+                  <p className="mt-1 text-xs text-neutral-500">
+                    Início: {formatarData(s.dataInicioSancao)}
+                    {s.dataFimSancao ? ` · Fim: ${formatarData(s.dataFimSancao)}` : ""}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <span className="rounded-full border border-neutral-300 px-2.5 py-1 text-xs font-medium dark:border-neutral-700">
+                    {s.origemSancao}
+                  </span>
+                  {formatarMoeda(s.valorMulta) && (
+                    <p className="mt-1 text-xs text-neutral-500">{formatarMoeda(s.valorMulta)}</p>
+                  )}
+                </div>
               </div>
-              <div className="shrink-0 text-right">
-                <span className="rounded-full border border-neutral-300 px-2.5 py-1 text-xs font-medium dark:border-neutral-700">
-                  {s.origemSancao}
-                </span>
-                {formatarMoeda(s.valorMulta) && (
-                  <p className="mt-1 text-xs text-neutral-500">{formatarMoeda(s.valorMulta)}</p>
-                )}
-              </div>
-            </div>
+            </Link>
           </li>
         ))}
       </ul>

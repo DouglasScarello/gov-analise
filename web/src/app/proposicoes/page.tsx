@@ -18,6 +18,12 @@ function formatarData(iso: string | null) {
   return new Date(iso).toLocaleDateString("pt-BR");
 }
 
+function formatarNumero(numero: string, ano: string) {
+  const n = numero.endsWith(".0") ? numero.slice(0, -2) : numero;
+  const a = ano.endsWith(".0") ? ano.slice(0, -2) : ano;
+  return `${n}/${a}`;
+}
+
 function construirLink(params: Params, novaPagina: number) {
   const qs = new URLSearchParams();
   if (params.casa) qs.set("casa", params.casa);
@@ -134,19 +140,19 @@ export default async function ProposicoesPage({
 
       <ul className="mt-6 divide-y divide-neutral-200 rounded-xl border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
         {proposicoes.map((p, i) => (
-          <li key={i} className="px-4 py-3">
-            <a
-              href={p.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+          <li key={i}>
+            <Link
+              href={`/proposicoes/detalhe?url=${encodeURIComponent(p.url)}`}
+              className="block px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-900/50"
             >
-              {p.tipoSigla} {p.numero}/{p.ano}
-            </a>
-            {p.ementa && <p className="mt-1 line-clamp-2 text-sm text-neutral-500">{p.ementa}</p>}
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-              {p.casa === "Camara" ? "Câmara" : "Senado"} · {formatarData(p.dataApresentacao)}
-            </p>
+              <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                {p.tipoSigla} {formatarNumero(p.numero, p.ano)}
+              </p>
+              {p.ementa && <p className="mt-1 line-clamp-2 text-sm text-neutral-500">{p.ementa}</p>}
+              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                {p.casa === "Camara" ? "Câmara" : "Senado"} · {formatarData(p.dataApresentacao)}
+              </p>
+            </Link>
           </li>
         ))}
       </ul>

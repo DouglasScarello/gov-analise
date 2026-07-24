@@ -70,14 +70,12 @@ export default async function ProcessosSenadoPage({
           <li key={p.id} className="px-4 py-3">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <a
-                  href={p.urlDocumento ?? undefined}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href={`/legislativo/processos/${p.id}`}
                   className="font-medium text-blue-600 hover:underline dark:text-blue-400"
                 >
                   {p.identificacao}
-                </a>
+                </Link>
                 {p.ementa && <p className="mt-1 line-clamp-2 text-sm text-neutral-500">{p.ementa}</p>}
                 <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                   {p.tipoDocumento} · {p.autoria ?? "autoria não informada"} · apresentado em{" "}

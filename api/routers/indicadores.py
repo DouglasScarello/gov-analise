@@ -88,6 +88,14 @@ def tribunais_disponiveis():
     )
 
 
+@router.get("/judicial/processos/{id}")
+def detalhe_processo_judicial(id: str):
+    processo = query_one("SELECT * FROM stg_datajud_processos WHERE id = ?", [id])
+    if not processo:
+        raise HTTPException(status_code=404, detail="Processo não encontrado")
+    return processo
+
+
 @router.get("/legislativo/senado/votacoes")
 def votacoes_senado(
     senador: Optional[str] = Query(None, description="Busca parcial pelo nome do senador"),
@@ -170,3 +178,11 @@ def processos_senado(tramitando: Optional[str] = Query(None, description="Sim | 
             [tramitando, limit],
         )
     return query("SELECT * FROM stg_senado_processos ORDER BY dataUltimaAtualizacao DESC LIMIT ?", [limit])
+
+
+@router.get("/legislativo/senado/processos/{id}")
+def detalhe_processo_senado(id: int):
+    processo = query_one("SELECT * FROM stg_senado_processos WHERE id = ?", [id])
+    if not processo:
+        raise HTTPException(status_code=404, detail="Matéria não encontrada")
+    return processo

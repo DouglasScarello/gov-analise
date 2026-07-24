@@ -5,9 +5,9 @@ de contratar com o poder público ou punidas por corrupção.
 
 from typing import Optional
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 
-from ..db import paginar
+from ..db import paginar, query_one
 
 router = APIRouter(prefix="/sancoes", tags=["sancoes"])
 
@@ -35,3 +35,11 @@ def listar_sancoes(
 
     where = f"WHERE {' AND '.join(condicoes)}" if condicoes else ""
     return paginar("*", f"FROM entidades_sancionadas {where}", "ORDER BY dataInicioSancao DESC", params, limit, offset)
+
+
+@router.get("/{id}")
+def detalhe_sancao(id: int):
+    sancao = query_one("SELECT * FROM entidades_sancionadas WHERE id = ?", [id])
+    if not sancao:
+        raise HTTPException(status_code=404, detail="Sanção não encontrada")
+    return sancao
