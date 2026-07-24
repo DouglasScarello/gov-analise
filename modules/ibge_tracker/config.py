@@ -16,6 +16,7 @@ REQUEST_TIMEOUT = 30
 TABELAS = [
     (6579, 9324, "populacao_estimada_uf"),
     (5938, 37, "pib_uf"),
+    # Nota: taxa_desocupacao_uf e rendimento_medio_uf requerem códigos SIDRA válidos — validar em https://sidra.ibge.gov.br antes de usar
 ]
 
 # Quantos períodos (anos) buscar de cada tabela, para permitir gráfico de

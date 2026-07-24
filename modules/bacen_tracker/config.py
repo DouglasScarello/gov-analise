@@ -15,10 +15,15 @@ REQUEST_TIMEOUT = 30
 SERIES = {
     432: "selic_meta",
     433: "ipca_variacao_mensal",
+    11: "ipca_acumulado_12_meses",  # inflação acumulada no ano
     1: "dolar_ptax_venda",
+    3698: "dolar_ptax_compra",
     189: "igpm_variacao_mensal",
     24369: "divida_liquida_setor_publico_pct_pib",
     4447: "taxa_desocupacao_pnad",
+    21862: "ibc_br",  # Atividade econômica / proxy de PIB mensal
+    12991: "balanca_comercial_saldo",  # Saldo da balança comercial
+    3437: "reservas_internacionais",
 }
 
 # Quantos últimos valores buscar por série via /ultimos/N (a API do SGS limita
