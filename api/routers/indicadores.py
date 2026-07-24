@@ -16,9 +16,9 @@ router = APIRouter(tags=["indicadores"])
 def series_economicas(serie: Optional[str] = Query(None, description="Nome da série, ex: selic_meta")):
     if serie:
         return query(
-            "SELECT * FROM stg_bacen_series WHERE serie = ? ORDER BY data DESC", [serie]
+            "SELECT * FROM stg_indicadores_economicos WHERE serie = ? ORDER BY data DESC", [serie]
         )
-    return query("SELECT * FROM stg_bacen_series ORDER BY serie, data DESC")
+    return query("SELECT * FROM stg_indicadores_economicos ORDER BY serie, data DESC")
 
 
 @router.get("/indicadores/uf")

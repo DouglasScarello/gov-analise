@@ -12,7 +12,7 @@ from typing import Optional
 
 import requests
 
-from .config import AGREGADOS_URL, ANOS_HISTORICO, LOCALIDADES_URL, HEADERS, REQUEST_TIMEOUT, TABELAS
+from .config import AGREGADOS_URL, ANOS_HISTORICO, LOCALIDADES_URL, HEADERS, REQUEST_TIMEOUT, TABELAS, PIB_NACIONAL, TRIMESTRES_HISTORICO
 
 
 def _get_json(url: str) -> Optional[object]:
@@ -77,3 +77,19 @@ def get_estados() -> list[dict]:
         return []
     print(f"[ibge_tracker] {len(dados)} estados encontrados.")
     return dados
+
+
+def get_pib_nacional(trimestres: int = TRIMESTRES_HISTORICO) -> list[dict]:
+    """Busca os últimos `trimestres` períodos do PIB nacional (Contas Nacionais).
+
+    Retorna taxa acumulada em quatro trimestres para o PIB a preços de mercado (N1 - Brasil).
+    """
+    id_tabela, id_variavel, classificacao, recurso = PIB_NACIONAL
+    print(f"[ibge_tracker] Buscando {trimestres} trimestres de histórico de {recurso} (tabela {id_tabela})...")
+
+    url = (f"{AGREGADOS_URL}/{id_tabela}/periodos/-{trimestres}/variaveis/{id_variavel}"
+           f"?localidades=N1[all]&classificacao={classificacao}")
+    dados = _get_json(url)
+    registros = _achatar_serie(dados, recurso)
+    print(f"[ibge_tracker] {recurso}: {len(registros)} registros")
+    return registros

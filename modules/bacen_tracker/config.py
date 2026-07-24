@@ -24,6 +24,9 @@ SERIES = {
     21862: "ibc_br",  # Atividade econômica / proxy de PIB mensal
     12991: "balanca_comercial_saldo",  # Saldo da balança comercial
     3437: "reservas_internacionais",
+    20783: "spread_bancario",  # Spread médio das operações de crédito com recursos livres
+    11752: "taxa_cambio_real_efetiva",  # Taxa de câmbio real efetiva (IPCA)
+    5793: "resultado_primario_governo",  # NFSP sem desvalorização cambial / PIB - resultado primário
 }
 
 # Quantos últimos valores buscar por série via /ultimos/N (a API do SGS limita

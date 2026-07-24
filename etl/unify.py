@@ -125,3 +125,15 @@ def unificar_proposicoes(camara: pd.DataFrame, senado: pd.DataFrame) -> pd.DataF
     if not partes:
         return pd.DataFrame()
     return pd.concat(partes, ignore_index=True)
+
+
+def unificar_indicadores_economicos(bacen: pd.DataFrame, ibge_pib: pd.DataFrame) -> pd.DataFrame:
+    """União das séries econômicas do Bacen (SGS) com a série de PIB do IBGE (Contas Nacionais).
+
+    Ambas adotam o mesmo schema (data, valor, serie, codigoSgs), usada pelo endpoint /economia/series.
+    Bacen séries são indexadas por código SGS; PIB do IBGE tem codigoSgs=None.
+    """
+    partes = [df for df in (bacen, ibge_pib) if not df.empty]
+    if not partes:
+        return pd.DataFrame()
+    return pd.concat(partes, ignore_index=True)

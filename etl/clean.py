@@ -159,6 +159,39 @@ def limpar_ibge_indicadores(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def limpar_ibge_pib_nacional(df: pd.DataFrame) -> pd.DataFrame:
+    """Limpa PIB trimestral do IBGE para o schema de série temporal (compatível com stg_bacen_series).
+
+    Transforma período trimestral (AAAAPP, ex: 202402) em data (YYYY-MM-01 do mês final do trimestre).
+    Unifica com as séries Bacen usando as colunas: data, valor, serie, codigoSgs.
+    """
+    if df.empty:
+        return df
+
+    out = df.copy()
+
+    # Converter valor pra numérico
+    out["valor"] = pd.to_numeric(out["valor"], errors="coerce")
+
+    # Transformar período trimestral (AAAAPP) em data (YYYY-MM-01)
+    # Período tem formato "AAAAPP" onde PP = 01-04 (trimestres)
+    # Mapear trimestre → mês final (01→03, 02→06, 03→09, 04→12)
+    periodo_str = out["periodo"].astype(str)
+    ano = periodo_str.str[:4]
+    trimestre = periodo_str.str[4:6].astype(int)  # Extrair 2 dígitos (PP)
+    mes = trimestre * 3
+    out["data"] = pd.to_datetime(ano + "-" + mes.astype(str).str.zfill(2) + "-01")
+
+    # Adicionar série e codigoSgs (compatibilidade com stg_bacen_series)
+    out["serie"] = "pib_taxa_crescimento"
+    out["codigoSgs"] = None
+
+    # Manter só as colunas necessárias (mesmo schema de stg_bacen_series)
+    out = out[["data", "valor", "serie", "codigoSgs"]].copy()
+
+    return out
+
+
 def limpar_tse_candidatos(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df
