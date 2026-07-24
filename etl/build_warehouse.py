@@ -18,7 +18,9 @@ from .loaders import carregar_recurso_json, carregar_recurso_parquet
 from .unify import (
     unificar_contratos_publicos,
     unificar_entidades_sancionadas,
+    unificar_indicadores_economicos,
     unificar_pessoas_politicas,
+    unificar_proposicoes,
     unificar_tse_candidatos_geral,
 )
 
@@ -34,13 +36,18 @@ log = logging.getLogger(__name__)
 # (fonte, recurso, tipo_arquivo, função_de_limpeza) -> nome da tabela staging
 FONTES_JSON = [
     ("camara", "deputados", clean.limpar_camara_deputados),
+    ("camara", "legislaturas", clean.limpar_camara_legislaturas),
+    ("camara", "proposicoes", clean.limpar_camara_proposicoes),
     ("senado", "senadores", clean.limpar_senado_senadores),
+    ("senado", "legislaturas", clean.limpar_senado_legislaturas),
+    ("senado", "autorias", clean.limpar_senado_autorias),
     ("senado", "processos", clean.limpar_senado_processos),
     ("senado", "votacoes", clean.limpar_senado_votacoes),
     ("bacen", "series", clean.limpar_bacen_series),
     ("siconfi", "entes", clean.limpar_siconfi_entes),
     ("siconfi", "dca", clean.limpar_siconfi_dca),
     ("ibge", "indicadores_uf", clean.limpar_ibge_indicadores),
+    ("ibge", "pib_nacional", clean.limpar_ibge_pib_nacional),
     ("compras", "contratacoes", clean.limpar_compras_contratacoes),
     ("datajud", "processos", clean.limpar_datajud_processos),
     ("transparencia", "ceis", clean.limpar_transparencia_sancoes),
@@ -119,6 +126,20 @@ def build() -> dict:
         staging.get("transparencia_contratos", pd.DataFrame()),
     )
     resultado["contratos_publicos"] = _gravar_tabela(con, "contratos_publicos", contratos)
+
+    proposicoes = unificar_proposicoes(
+        staging.get("camara_proposicoes", pd.DataFrame()),
+        staging.get("senado_autorias", pd.DataFrame()),
+    )
+    resultado["proposicoes_legislativas"] = _gravar_tabela(con, "proposicoes_legislativas", proposicoes)
+
+    # Unificar séries econômicas: Bacen (SGS) + PIB do IBGE (Contas Nacionais)
+    # Ambas adotam o mesmo schema (data, valor, serie, codigoSgs) para o endpoint /economia/series
+    indicadores_economicos = unificar_indicadores_economicos(
+        staging.get("bacen_series", pd.DataFrame()),
+        staging.get("ibge_pib_nacional", pd.DataFrame()),
+    )
+    resultado["stg_indicadores_economicos"] = _gravar_tabela(con, "stg_indicadores_economicos", indicadores_economicos)
 
     con.close()
     return resultado

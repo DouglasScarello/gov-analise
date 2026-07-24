@@ -115,3 +115,25 @@ def unificar_contratos_publicos(compras: pd.DataFrame, transparencia: pd.DataFra
     if not partes:
         return pd.DataFrame()
     return pd.concat(partes, ignore_index=True)
+
+
+def unificar_proposicoes(camara: pd.DataFrame, senado: pd.DataFrame) -> pd.DataFrame:
+    """União das proposições de autoria da Câmara + matérias de autoria do
+    Senado — já saem do `clean` com o mesmo esquema de colunas
+    (casa, autorId, tipoSigla, numero, ano, ementa, dataApresentacao, url)."""
+    partes = [df for df in (camara, senado) if not df.empty]
+    if not partes:
+        return pd.DataFrame()
+    return pd.concat(partes, ignore_index=True)
+
+
+def unificar_indicadores_economicos(bacen: pd.DataFrame, ibge_pib: pd.DataFrame) -> pd.DataFrame:
+    """União das séries econômicas do Bacen (SGS) com a série de PIB do IBGE (Contas Nacionais).
+
+    Ambas adotam o mesmo schema (data, valor, serie, codigoSgs), usada pelo endpoint /economia/series.
+    Bacen séries são indexadas por código SGS; PIB do IBGE tem codigoSgs=None.
+    """
+    partes = [df for df in (bacen, ibge_pib) if not df.empty]
+    if not partes:
+        return pd.DataFrame()
+    return pd.concat(partes, ignore_index=True)

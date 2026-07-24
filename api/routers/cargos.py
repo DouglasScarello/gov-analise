@@ -26,23 +26,46 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 
-from ..db import query, query_one
+from ..db import paginar, query, query_one
 
 router = APIRouter(prefix="/cargos", tags=["cargos"])
 
 ELEITO = "DS_SIT_TOT_TURNO ILIKE 'ELEITO%'"
 
 CARGOS_NACIONAL = ["PRESIDENTE", "VICE-PRESIDENTE"]
-CARGOS_ESTADUAL = ["GOVERNADOR", "VICE-GOVERNADOR", "DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL"]
+CARGOS_ESTADUAL = [
+    "GOVERNADOR",
+    "VICE-GOVERNADOR",
+    "DEPUTADO ESTADUAL",
+    "DEPUTADO DISTRITAL",
+]
 CARGOS_MUNICIPAL = ["PREFEITO", "VICE-PREFEITO", "VEREADOR"]
 
 ANOS_ELEICAO_GERAL = [1994, 1998, 2002, 2006, 2010, 2014, 2018, 2022]
 ANOS_ELEICAO_MUNICIPAL = [1996, 2000, 2004, 2008, 2012, 2016, 2020, 2024]
 
 NIVEIS = {
-    "nacional": {"tabela": "stg_tse_candidatos_geral", "cargos": CARGOS_NACIONAL, "tem_uf": False, "tem_municipio": False, "tem_ano": True},
-    "estadual": {"tabela": "stg_tse_candidatos_geral", "cargos": CARGOS_ESTADUAL, "tem_uf": True, "tem_municipio": False, "tem_ano": True},
-    "municipal": {"tabela": "stg_tse_candidatos_municipal_geral", "cargos": CARGOS_MUNICIPAL, "tem_uf": True, "tem_municipio": True, "tem_ano": True},
+    "nacional": {
+        "tabela": "stg_tse_candidatos_geral",
+        "cargos": CARGOS_NACIONAL,
+        "tem_uf": False,
+        "tem_municipio": False,
+        "tem_ano": True,
+    },
+    "estadual": {
+        "tabela": "stg_tse_candidatos_geral",
+        "cargos": CARGOS_ESTADUAL,
+        "tem_uf": True,
+        "tem_municipio": False,
+        "tem_ano": True,
+    },
+    "municipal": {
+        "tabela": "stg_tse_candidatos_municipal_geral",
+        "cargos": CARGOS_MUNICIPAL,
+        "tem_uf": True,
+        "tem_municipio": True,
+        "tem_ano": True,
+    },
 }
 
 ANOS_POR_NIVEL = {
@@ -70,25 +93,45 @@ CARGO_LABEL = {
 def listar_tipos_de_cargo():
     """Catálogo de nível + cargo disponíveis, para montar um filtro no frontend."""
     tipos = [
-        {"nivel": "federal", "cargo": "DEPUTADO FEDERAL", "label": CARGO_LABEL["DEPUTADO FEDERAL"]},
+        {
+            "nivel": "federal",
+            "cargo": "DEPUTADO FEDERAL",
+            "label": CARGO_LABEL["DEPUTADO FEDERAL"],
+        },
         {"nivel": "federal", "cargo": "SENADOR", "label": CARGO_LABEL["SENADOR"]},
     ]
     for nivel in ("nacional", "estadual", "municipal"):
         for cargo in NIVEIS[nivel]["cargos"]:
-            tipos.append({"nivel": nivel, "cargo": cargo, "label": CARGO_LABEL.get(cargo, cargo.title())})
+            tipos.append(
+                {
+                    "nivel": nivel,
+                    "cargo": cargo,
+                    "label": CARGO_LABEL.get(cargo, cargo.title()),
+                }
+            )
     return tipos
 
 
 @router.get("/anos")
-def listar_anos_disponiveis(nivel: str = Query("nacional", description="nacional | estadual | municipal")):
+def listar_anos_disponiveis(
+    nivel: str = Query("nacional", description="nacional | estadual | municipal")
+):
     """Anos de eleição com dado coletado para o nível informado."""
     anos = ANOS_POR_NIVEL.get(nivel.lower())
     if anos is None:
-        raise HTTPException(status_code=400, detail="nivel deve ser: nacional, estadual ou municipal")
+        raise HTTPException(
+            status_code=400, detail="nivel deve ser: nacional, estadual ou municipal"
+        )
     return {"anos": anos}
 
 
-def _listar_federal(cargo: Optional[str], uf: Optional[str], nome: Optional[str], limit: int, offset: int):
+def _listar_federal(
+    cargo: Optional[str],
+    uf: Optional[str],
+    nome: Optional[str],
+    limit: int,
+    offset: int,
+) -> dict:
     condicoes = []
     params: list = []
 
@@ -105,25 +148,29 @@ def _listar_federal(cargo: Optional[str], uf: Optional[str], nome: Optional[str]
         params.append(f"%{nome.upper()}%")
 
     where = f"WHERE {' AND '.join(condicoes)}" if condicoes else ""
-    sql = f"""
-        SELECT slug AS id, nome, casa,
+    from_where = f"FROM pessoas_politicas {where}"
+    select = """slug AS id, nome, casa,
                COALESCE(camaraPartido, senadoPartido) AS partido,
                COALESCE(camaraUf, senadoUf) AS uf,
-               COALESCE(camaraFoto, senadoFoto) AS foto
-        FROM pessoas_politicas
-        {where}
-        ORDER BY nome
-        LIMIT ? OFFSET ?
-    """
-    params.extend([limit, offset])
-    linhas = query(sql, params)
-    for l in linhas:
+               COALESCE(camaraFoto, senadoFoto) AS foto"""
+
+    pagina = paginar(select, from_where, "ORDER BY nome", params, limit, offset)
+    for l in pagina["items"]:
         l["nivel"] = "federal"
         l["cargo"] = cargo or l.pop("casa", None)
-    return linhas
+    return pagina
 
 
-def _listar_tse(nivel: str, cargo: Optional[str], uf: Optional[str], municipio: Optional[str], nome: Optional[str], ano: Optional[int], limit: int, offset: int):
+def _listar_tse(
+    nivel: str,
+    cargo: Optional[str],
+    uf: Optional[str],
+    municipio: Optional[str],
+    nome: Optional[str],
+    ano: Optional[int],
+    limit: int,
+    offset: int,
+) -> dict:
     cfg = NIVEIS[nivel]
     condicoes = [ELEITO]
     params: list = []
@@ -149,25 +196,21 @@ def _listar_tse(nivel: str, cargo: Optional[str], uf: Optional[str], municipio: 
         condicoes.append("nome_normalizado ILIKE ?")
         params.append(f"%{nome.upper()}%")
 
-    # id composto (ano-sq) para nacional/estadual, já que SQ_CANDIDATO se repete
-    # entre eleições diferentes; municipal (um ano só) usa o SQ_CANDIDATO puro.
+    # id composto (ano-sq) para nacional/estadual/municipal, já que SQ_CANDIDATO
+    # se repete entre eleições diferentes.
     id_expr = "ANO_ELEICAO || '-' || SQ_CANDIDATO" if cfg["tem_ano"] else "SQ_CANDIDATO"
 
     where = f"WHERE {' AND '.join(condicoes)}"
-    sql = f"""
-        SELECT {id_expr} AS id, NM_CANDIDATO AS nome, NM_URNA_CANDIDATO AS nome_urna,
+    from_where = f"FROM {cfg['tabela']} {where}"
+    select = f"""{id_expr} AS id, NM_CANDIDATO AS nome, NM_URNA_CANDIDATO AS nome_urna,
                SG_PARTIDO AS partido, SG_UF AS uf, NM_UE AS municipio, DS_CARGO AS cargo,
-               ANO_ELEICAO AS ano
-        FROM {cfg["tabela"]}
-        {where}
-        ORDER BY ANO_ELEICAO DESC, SG_UF, DS_CARGO, NM_CANDIDATO
-        LIMIT ? OFFSET ?
-    """
-    params.extend([limit, offset])
-    linhas = query(sql, params)
-    for l in linhas:
+               ANO_ELEICAO AS ano"""
+    order_by = "ORDER BY ANO_ELEICAO DESC, SG_UF, DS_CARGO, NM_CANDIDATO"
+
+    pagina = paginar(select, from_where, order_by, params, limit, offset)
+    for l in pagina["items"]:
         l["nivel"] = nivel
-    return linhas
+    return pagina
 
 
 @router.get("/politicos")
@@ -177,7 +220,9 @@ def listar_politicos(
     uf: Optional[str] = Query(None),
     municipio: Optional[str] = Query(None),
     nome: Optional[str] = Query(None),
-    ano: Optional[int] = Query(None, description="Ano da eleição (nacional/estadual, 1994-2022)"),
+    ano: Optional[int] = Query(
+        None, description="Ano da eleição (nacional/estadual, 1994-2022)"
+    ),
     limit: int = Query(24, le=100),
     offset: int = Query(0, ge=0),
 ):
@@ -186,7 +231,10 @@ def listar_politicos(
         return _listar_federal(cargo, uf, nome, limit, offset)
     if nivel in NIVEIS:
         return _listar_tse(nivel, cargo, uf, municipio, nome, ano, limit, offset)
-    raise HTTPException(status_code=400, detail="nivel deve ser: federal, estadual, nacional ou municipal")
+    raise HTTPException(
+        status_code=400,
+        detail="nivel deve ser: federal, estadual, nacional ou municipal",
+    )
 
 
 @router.get("/politicos/{nivel}/{id}")
@@ -211,7 +259,9 @@ def detalhe_politico(nivel: str, id: str):
             # id vem como "<ano>-<sq_candidato>" (ver _listar_tse)
             ano, _, sq = id.partition("-")
             if not sq:
-                raise HTTPException(status_code=400, detail="id inválido, esperado <ano>-<sq_candidato>")
+                raise HTTPException(
+                    status_code=400, detail="id inválido, esperado <ano>-<sq_candidato>"
+                )
             condicao, valores = "ANO_ELEICAO = ? AND SQ_CANDIDATO = ?", [ano, sq]
         else:
             condicao, valores = "SQ_CANDIDATO = ?", [id]
@@ -233,6 +283,30 @@ def detalhe_politico(nivel: str, id: str):
             "SELECT * FROM entidades_sancionadas WHERE sancionadoNome ILIKE ? LIMIT 20",
             [f"%{pessoa['NM_CANDIDATO']}%"],
         )
-        return {**pessoa, "nivel": nivel, "sancoesVinculadas": sancoes}
+        candidaturas = query(
+            "SELECT ANO_ELEICAO AS ano, DS_CARGO AS cargo, SG_UF AS uf, NM_UE AS municipio, "
+            "SG_PARTIDO AS partido, DS_SIT_TOT_TURNO AS situacao "
+            "FROM stg_tse_candidatos_geral WHERE nome_normalizado = ? OR nome_urna_normalizado = ? "
+            "UNION ALL "
+            "SELECT ANO_ELEICAO AS ano, DS_CARGO AS cargo, SG_UF AS uf, NM_UE AS municipio, "
+            "SG_PARTIDO AS partido, DS_SIT_TOT_TURNO AS situacao "
+            "FROM stg_tse_candidatos_municipal_geral WHERE nome_normalizado = ? OR nome_urna_normalizado = ? "
+            "ORDER BY ano DESC",
+            [
+                pessoa["nome_normalizado"],
+                pessoa["nome_normalizado"],
+                pessoa["nome_normalizado"],
+                pessoa["nome_normalizado"],
+            ],
+        )
+        return {
+            **pessoa,
+            "nivel": nivel,
+            "sancoesVinculadas": sancoes,
+            "candidaturas": candidaturas,
+        }
 
-    raise HTTPException(status_code=400, detail="nivel deve ser: federal, estadual, nacional ou municipal")
+    raise HTTPException(
+        status_code=400,
+        detail="nivel deve ser: federal, estadual, nacional ou municipal",
+    )

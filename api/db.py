@@ -13,6 +13,17 @@ import pandas as pd
 
 WAREHOUSE_PATH = Path(__file__).parent.parent / "data" / "warehouse" / "camara_analytics.duckdb"
 
+# contratos_publicos não tem uma coluna de ID própria (é uma união de duas
+# fontes sem chave em comum) — usamos um hash estável do conteúdo da linha
+# como identificador para a página de detalhe. Toda query que devolve
+# contratos para o frontend precisa incluir essa mesma expressão.
+CONTRATO_HASH_ID = (
+    "md5(fonte || orgaoNome || COALESCE(orgaoDocumento,'') || COALESCE(uf,'') || "
+    "objeto || COALESCE(modalidade,'') || COALESCE(CAST(valor AS VARCHAR),'') || "
+    "COALESCE(CAST(data AS VARCHAR),'') || COALESCE(situacao,'') || "
+    "COALESCE(fornecedorNome,'') || COALESCE(fornecedorDocumento,'')) AS id"
+)
+
 
 def get_connection() -> duckdb.DuckDBPyConnection:
     if not WAREHOUSE_PATH.exists():
@@ -48,3 +59,16 @@ def query(sql: str, params: list | None = None) -> list[dict]:
 def query_one(sql: str, params: list | None = None) -> dict | None:
     registros = query(sql, params)
     return registros[0] if registros else None
+
+
+def paginar(select: str, from_where: str, order_by: str, params: list, limit: int, offset: int) -> dict:
+    """Executa uma listagem paginada, retornando o envelope padrão
+    { items, total, limit, offset } usado por todos os endpoints de lista.
+
+    `from_where` é o trecho "FROM tabela [WHERE ...]" compartilhado entre a
+    query de itens e a de contagem total (sem LIMIT/OFFSET).
+    """
+    itens = query(f"SELECT {select} {from_where} {order_by} LIMIT ? OFFSET ?", [*params, limit, offset])
+    total_row = query_one(f"SELECT COUNT(*) AS total {from_where}", params)
+    total = total_row["total"] if total_row else 0
+    return {"items": itens, "total": total, "limit": limit, "offset": offset}

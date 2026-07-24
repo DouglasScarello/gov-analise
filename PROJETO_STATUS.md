@@ -174,11 +174,15 @@ valor antigo, apagar essa pasta resolve.
 
 - [x] ~~Coletar eleições municipais de 1996 a 2020~~ — feito, todos os anos de
       1996 a 2024 estão coletados e unificados em `stg_tse_candidatos_municipal_geral`.
-- [ ] Avaliar se dá pra linkar vice-presidente/vice-governador/vice-prefeito
-      pré-corte usando outro dataset do TSE (ex: `consulta_vagas` ou resultado
-      oficial por chapa, em vez do arquivo de candidatos)
-- [ ] Histórico de legislaturas de Câmara/Senado (a API deles suporta consulta por
-      legislatura, não só a atual)
+- [x] ~~Avaliar se dá pra linkar vice-presidente/vice-governador/vice-prefeito
+      pré-corte usando outro dataset do TSE~~ — investigado (Fase 4.2): não há
+      dataset alternativo do TSE com a situação de eleição do vice separada
+      nesses anos; `consulta_vagas` só traz número de cadeiras, não vínculo
+      titular/vice. Fechado como limitação estrutural da fonte, documentado
+      em `/sobre` e no README — a heurística por urna/coligação já testada
+      só acerta ~38% dos casos, risco alto demais para publicar.
+- [x] ~~Histórico de legislaturas de Câmara/Senado~~ — feito (Fase 3.3),
+      1999-2027 em ambas as casas, exposto em `/politico/[slug]`.
 - [ ] `municipal_tracker` (módulo pré-existente) ainda não foi integrado ao
       pipeline ETL novo
 - [ ] Deputado estadual/distrital não aparece em `/cargos/tipos` com contagem —

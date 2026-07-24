@@ -18,3 +18,7 @@ REQUEST_TIMEOUT = 30
 
 # Pausa entre requisições em loop (ex: votações por senador) para não sobrecarregar a API
 REQUEST_DELAY = 0.25
+
+# Intervalo de legislaturas cobertas na coleta de histórico (mesmo período do camara_tracker).
+LEGISLATURA_INICIO = 51
+LEGISLATURA_FIM = 57

@@ -15,3 +15,10 @@ HEADERS = {
 }
 
 REQUEST_TIMEOUT = 30
+
+# Legislaturas cobertas na coleta de histórico (51ª = 1999-2003 até a atual).
+LEGISLATURAS = list(range(51, 58))
+
+# Pausa entre requisições em loop (ex: proposições por deputado) para não
+# sobrecarregar a API.
+REQUEST_DELAY = 0.2

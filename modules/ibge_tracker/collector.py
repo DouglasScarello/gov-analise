@@ -11,7 +11,7 @@ import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .extractor import get_todas_tabelas, get_estados
+from .extractor import get_todas_tabelas, get_estados, get_pib_nacional
 
 log = logging.getLogger(__name__)
 
@@ -64,8 +64,16 @@ def collect_estados() -> list[dict]:
     return estados
 
 
+def collect_pib_nacional() -> list[dict]:
+    inicio = datetime.now(tz=timezone.utc)
+    registros = get_pib_nacional()
+    if registros:
+        _salvar_snapshot("pib_nacional", registros, inicio)
+    return registros
+
+
 def collect_all() -> dict:
-    """Coleta indicadores socioeconômicos por UF + catálogo de estados."""
+    """Coleta indicadores socioeconômicos por UF, PIB nacional + catálogo de estados."""
     resultado = {}
 
     indicadores = collect_indicadores_uf()
@@ -73,6 +81,9 @@ def collect_all() -> dict:
 
     estados = collect_estados()
     resultado["estados"] = len(estados)
+
+    pib_nacional = collect_pib_nacional()
+    resultado["pib_nacional"] = len(pib_nacional)
 
     return resultado
 

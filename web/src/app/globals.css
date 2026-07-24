@@ -1,8 +1,25 @@
 @import "tailwindcss";
 
+/* Tema é escolha explícita do usuário (ThemeToggle + cookie), não do sistema —
+   por isso a variante `dark:` responde à classe .dark, não a prefers-color-scheme. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --chart-primary: #2563eb;
+  --chart-grid: #e5e5e5;
+  --chart-axis: #737373;
+  --chart-surface: #ffffff;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --chart-primary: #60a5fa;
+  --chart-grid: #404040;
+  --chart-axis: #a3a3a3;
+  --chart-surface: #0a0a0a;
 }
 
 @theme inline {
@@ -10,13 +27,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {

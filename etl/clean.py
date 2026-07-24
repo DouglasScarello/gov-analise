@@ -8,7 +8,7 @@ um DataFrame "staging" pronto para virar tabela no warehouse.
 
 import pandas as pd
 
-from .utils import extrair_campo, normalizar_nome, somente_digitos
+from .utils import corrigir_dupla_codificacao, extrair_campo, normalizar_nome, somente_digitos
 
 
 def limpar_camara_deputados(df: pd.DataFrame) -> pd.DataFrame:
@@ -16,6 +16,66 @@ def limpar_camara_deputados(df: pd.DataFrame) -> pd.DataFrame:
         return df
     out = df[["id", "nome", "siglaPartido", "siglaUf", "email", "urlFoto", "idLegislatura"]].copy()
     out["nome_normalizado"] = out["nome"].map(normalizar_nome)
+    return out
+
+
+def limpar_camara_legislaturas(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df
+    out = df[["id", "nome", "siglaPartido", "siglaUf", "idLegislatura"]].copy()
+    out = out.drop_duplicates(subset=["id", "idLegislatura", "siglaPartido"])
+    return out
+
+
+def limpar_camara_proposicoes(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df
+    out = pd.DataFrame({
+        "casa": "Camara",
+        "autorId": df["_idDeputadoAutor"].astype(str),
+        "tipoSigla": df["siglaTipo"],
+        "numero": df["numero"].astype(str),
+        "ano": df["ano"].astype(str),
+        "ementa": df["ementa"],
+        "dataApresentacao": pd.to_datetime(df["dataApresentacao"], errors="coerce"),
+        "url": df["id"].apply(
+            lambda i: f"https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao={i}"
+        ),
+    })
+    out = out.drop_duplicates(subset=["casa", "autorId", "tipoSigla", "numero", "ano"])
+    return out
+
+
+def limpar_senado_autorias(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df
+    out = pd.DataFrame({
+        "casa": "Senado",
+        "autorId": df["_codigoSenador"].astype(str),
+        "tipoSigla": df["Sigla"],
+        "numero": df["Numero"].astype(str),
+        "ano": df["Ano"].astype(str),
+        "ementa": df["Ementa"],
+        "dataApresentacao": pd.to_datetime(df["Data"], errors="coerce"),
+        "url": df["Codigo"].apply(
+            lambda c: f"https://www25.senado.leg.br/web/atividade/materias/-/materia/{c}"
+        ),
+    })
+    out = out.drop_duplicates(subset=["casa", "autorId", "tipoSigla", "numero", "ano"])
+    return out
+
+
+def limpar_senado_legislaturas(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return df
+    out = df[[
+        "id", "nome", "nomeCompleto", "siglaUf",
+        "numeroLegislatura", "dataInicio", "dataFim", "participacao",
+    ]].copy()
+    out["numeroLegislatura"] = pd.to_numeric(out["numeroLegislatura"], errors="coerce").astype("Int64")
+    out["dataInicio"] = pd.to_datetime(out["dataInicio"], errors="coerce")
+    out["dataFim"] = pd.to_datetime(out["dataFim"], errors="coerce")
+    out = out.drop_duplicates(subset=["id", "numeroLegislatura"])
     return out
 
 
@@ -99,6 +159,39 @@ def limpar_ibge_indicadores(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def limpar_ibge_pib_nacional(df: pd.DataFrame) -> pd.DataFrame:
+    """Limpa PIB trimestral do IBGE para o schema de série temporal (compatível com stg_bacen_series).
+
+    Transforma período trimestral (AAAAPP, ex: 202402) em data (YYYY-MM-01 do mês final do trimestre).
+    Unifica com as séries Bacen usando as colunas: data, valor, serie, codigoSgs.
+    """
+    if df.empty:
+        return df
+
+    out = df.copy()
+
+    # Converter valor pra numérico
+    out["valor"] = pd.to_numeric(out["valor"], errors="coerce")
+
+    # Transformar período trimestral (AAAAPP) em data (YYYY-MM-01)
+    # Período tem formato "AAAAPP" onde PP = 01-04 (trimestres)
+    # Mapear trimestre → mês final (01→03, 02→06, 03→09, 04→12)
+    periodo_str = out["periodo"].astype(str)
+    ano = periodo_str.str[:4]
+    trimestre = periodo_str.str[4:6].astype(int)  # Extrair 2 dígitos (PP)
+    mes = trimestre * 3
+    out["data"] = pd.to_datetime(ano + "-" + mes.astype(str).str.zfill(2) + "-01")
+
+    # Adicionar série e codigoSgs (compatibilidade com stg_bacen_series)
+    out["serie"] = "pib_taxa_crescimento"
+    out["codigoSgs"] = None
+
+    # Manter só as colunas necessárias (mesmo schema de stg_bacen_series)
+    out = out[["data", "valor", "serie", "codigoSgs"]].copy()
+
+    return out
+
+
 def limpar_tse_candidatos(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df
@@ -110,6 +203,7 @@ def limpar_tse_candidatos(df: pd.DataFrame) -> pd.DataFrame:
     ]
     out = df[colunas].copy()
     out["nome_normalizado"] = out["NM_CANDIDATO"].map(normalizar_nome)
+    out["nome_urna_normalizado"] = out["NM_URNA_CANDIDATO"].map(normalizar_nome)
     return out
 
 
@@ -138,8 +232,8 @@ def limpar_datajud_processos(df: pd.DataFrame) -> pd.DataFrame:
         "grau": df["grau"],
         "numeroProcesso": df["numeroProcesso"],
         "dataAjuizamento": pd.to_datetime(df["dataAjuizamento"], format="%Y%m%d%H%M%S", errors="coerce"),
-        "classeNome": extrair_campo(df["classe"], "nome"),
-        "orgaoJulgadorNome": extrair_campo(df["orgaoJulgador"], "nome"),
+        "classeNome": extrair_campo(df["classe"], "nome").map(corrigir_dupla_codificacao),
+        "orgaoJulgadorNome": extrair_campo(df["orgaoJulgador"], "nome").map(corrigir_dupla_codificacao),
         "dataUltimaAtualizacao": pd.to_datetime(df["dataHoraUltimaAtualizacao"], errors="coerce", utc=True),
     })
     return out

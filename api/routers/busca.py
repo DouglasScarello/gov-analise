@@ -4,7 +4,7 @@ Busca única, tipo "Google": um termo, resultados de todas as tabelas.
 
 from fastapi import APIRouter, Query
 
-from ..db import query
+from ..db import CONTRATO_HASH_ID, query
 
 router = APIRouter(tags=["busca"])
 
@@ -28,8 +28,8 @@ def busca_unificada(q: str = Query(..., min_length=2), limit: int = Query(10, le
         [termo, limit],
     )
     contratos = query(
-        """
-        SELECT fonte, orgaoNome, fornecedorNome, objeto, valor
+        f"""
+        SELECT fonte, orgaoNome, fornecedorNome, objeto, valor, {CONTRATO_HASH_ID}
         FROM contratos_publicos
         WHERE orgaoNome ILIKE ? OR fornecedorNome ILIKE ? OR objeto ILIKE ?
         LIMIT ?
