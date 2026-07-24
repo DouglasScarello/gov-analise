@@ -10,11 +10,39 @@ interface StatTileProps {
   semântica?: "neutro" | "melhor_queda" | "melhor_alta";
 }
 
+function detectarFrequencia(pontos: Ponto[]): "diaria" | "mensal" | "anual" {
+  if (!pontos || pontos.length < 2) return "mensal";
+
+  const data1 = new Date(pontos[0].data);
+  const data2 = new Date(pontos[1].data);
+  const diasDiferenca = Math.abs((data1.getTime() - data2.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (diasDiferenca <= 1.5) return "diaria";
+  if (diasDiferenca >= 25 && diasDiferenca <= 35) return "mensal";
+  return "anual";
+}
+
 function calcularVariacao(
   pontos: Ponto[],
-  intervalo: number
+  tipo: "mom" | "yoy",
+  frequencia: "diaria" | "mensal" | "anual"
 ): { valor: number; sinal: "sobe" | "desce" | "estável" } | null {
-  if (!pontos || pontos.length < intervalo + 1) return null;
+  if (!pontos || pontos.length < 2) return null;
+
+  let intervalo = 0;
+
+  if (tipo === "mom") {
+    if (frequencia === "diaria") intervalo = 21; // ~1 mês de dias úteis
+    else if (frequencia === "mensal") intervalo = 1;
+    else if (frequencia === "anual") return null; // MoM não faz sentido para anual
+  } else {
+    // YoY
+    if (frequencia === "diaria") intervalo = 252; // ~1 ano de dias úteis
+    else if (frequencia === "mensal") intervalo = 12;
+    else if (frequencia === "anual") intervalo = 1;
+  }
+
+  if (intervalo === 0 || pontos.length < intervalo + 1) return null;
 
   const recente = pontos[0]?.valor;
   const anterior = pontos[intervalo]?.valor;
@@ -46,8 +74,9 @@ export default function StatTile({
   pontos = [],
   semântica = "neutro",
 }: StatTileProps) {
-  const mom = calcularVariacao(pontos, 1);
-  const yoy = calcularVariacao(pontos, 12);
+  const frequencia = detectarFrequencia(pontos);
+  const mom = calcularVariacao(pontos, "mom", frequencia);
+  const yoy = calcularVariacao(pontos, "yoy", frequencia);
 
   const exibirValor = valor ?? pontos[0]?.valor;
 
