@@ -141,63 +141,81 @@ Cada indicador usa critérios baseados em recomendações de órgãos oficiais e
 
 ---
 
-## PIB (Produto Interno Bruto)
+## PIB — Taxa de Crescimento Acumulada em 4 Trimestres
 
-**Fonte:** IBGE - Contas Nacionais Trimestrais  
-**Documento:** Sistema de Contas Nacionais
+**Fonte:** IBGE - Contas Nacionais Trimestrais (tabela 5932, variável 6562)  
+**Documento:** Relatório de Inflação do Banco Central (estimativas do PIB Potencial)
 
-- **Definição:** Soma do valor adicionado de todos os bens e serviços finais produzidos. Avaliar sempre contrapondo crescimento efetivo vs. PIB potencial (taxa natural = 1,5% a 2,0% a.a.). Usar YoY para tendência estrutural, QoQ para ciclo.
-- **Bom:** > 2,0% a.a. (acima da taxa natural, impulsionado por FBCF e ganhos de produtividade)
-- **Neutro:** 1,5% a 2,0% a.a. (alinhado ao potencial, crescimento sustentável)
-- **Ruim:** < 1,5% a.a. (estagnação, recessão, ociodade prolongada)
+- **Definição:** Taxa acumulada em quatro trimestres (YoY trimestral). Mede o crescimento estrutural da economia contra o PIB potencial estimado (2,0%-2,5% a.a. pós-reformas).
+- **Validação (2024):** PIB potencial Brasil estimado em 2,0%-2,5% a.a. pela SPE/Fazenda e FMI; média histórica 2014-2024 foi ~0,8% a.a.
+- **Ruim:** < 1,5% (abaixo do potencial, próximo à estagnação da renda per capita)
+- **Neutro:** 1,5% a 2,5% (crescimento em linha com PIB potencial estimado, sustentável)
+- **Bom:** > 2,5% (expansão real, fechamento de hiato do produto, crescimento estrutural)
 
-*Referência: https://www.ibge.gov.br/estatisticas/economicas/contas-nacionais.html*
+**Exemplos históricos:**
+- Ruim: 1T 2016 (-4,7% acumulado) — recessão profunda
+- Bom: 4T 2023 (+2,9% acumulado) — surpresa positiva (agro + consumo)
+
+*Referência: https://www.bcb.gov.br/publicacoes/ri | https://www.ibge.gov.br/estatisticas/economicas/contas-nacionais/9300-contas-nacionais-trimestrais.html*
 
 ---
 
-## Spread Bancário (Crédito)
+## Spread Bancário (Crédito Pessoa Física + Jurídica)
 
-**Fonte:** Banco Central do Brasil  
-**Documento:** Estatísticas de Crédito e Relatório de Economia Bancária
+**Fonte:** Banco Central do Brasil — Série SGS 20783  
+**Documento:** Relatório de Economia Bancária (REB); Indicador de Custo de Crédito (ICC)
 
-- **Definição:** Diferença entre taxa média de juros cobrada (aplicação) e custo de captação. Focar em crédito livre (não subsidiado). Decomposição oficial: Inadimplência (~35-37%), Despesas (~25-27%), Tributos (~20-22%), Margem (~15-19%).
-- **Bom:** < 20% (ambiente de liquidez sustentável, ganhos de eficiência, redução do risco)
-- **Neutro:** 20% a 25% (faixa histórica tolerável, sistema financeiro resiliente)
-- **Ruim:** > 25% (nível punitivo, asfixia financeira, economia em contração)
+- **Definição:** Spread médio das operações de crédito com recursos livres (total). Composição: Inadimplência/Risco (~35-37%), Custos Administrativos (~25%), Tributos/FGC (~20%), Margem Financeira (~15-19%). Brasil tem um dos spreads mais altos do mundo (México ~6%, Índia ~9%, Brasil ~28% média histórica).
+- **Validação histórica (últimos 10 anos):** Série 20783 flutua em média ~28%; mínima histórica 21,7% (dez/2020, Selic a 2%); máxima recente 32,8% (jan/2017, pico de juros).
+- **Bom:** < 24% (fase de expansão creditícia, concorrência saudável)
+- **Neutro:** 24% a 30% (faixa histórica normal, sistema financeiro resiliente)
+- **Ruim:** > 30% (nível de estresse com Selic alta, economia em contração)
 
-*Referência: https://dadosabertos.bcb.gov.br/dataset/20783-spread-medio-das-operacoes-de-credito---total*
+**Exemplos históricos:**
+- Bom: Dezembro 2020 (21,7%) — mínima com Selic a 2%
+- Ruim: Janeiro 2017 (32,8%) — fim de ciclo, alta inadimplência
+
+*Referência: https://www.bcb.gov.br/estabilidadefinanceira/relatorioeconomiabancaria | https://dadosabertos.bcb.gov.br/dataset/20783-spread-medio-das-operacoes-de-credito---total | Banco Mundial (Interest rate spread)*
 
 ---
 
 ## Taxa de Câmbio Real Efetiva (TCRE)
 
-**Fonte:** Banco Central do Brasil  
-**Documento:** Estatísticas de Câmbio e Competitividade Externa
+**Fonte:** Banco Central do Brasil — Série SGS 11752  
+**Documento:** Metodologia de Câmbio Efetivo Real (Índice da TCRE IPCA)
 
-- **Definição:** Índice da média geométrica de taxas cambiais bilaterais com ~23-24 parceiros comerciais, ajustadas por diferenciais de inflação (IPCA vs. CPI/PPI exterior). Ponderação dupla captando comércio direto e terceiros mercados. Série base 2010=100.
-- **Bom:** Índice > 100 ou acima da média histórica (depreciação real → moeda competitiva, exportações de manufaturados ganham, importações protegidas)
-- **Neutro:** Índice ≈ 100 (paridade de poder de compra em equilíbrio, contas externas sustentáveis)
-- **Ruim:** Índice << 100 (apreciação cambial excessiva → perda competitiva, défices crônicos, desindustrialização precoce)
+- **Definição:** Índice da taxa de câmbio real efetiva (IPCA). Base: **junho/1994 = 100** (nota: não é 2010). Índice de média geométrica com ~23-24 parceiros comerciais, ajustado por diferenciais de inflação (IPCA Brasil vs. CPI/PPI exterior). Ponderação dupla: comércio direto + terceiros mercados.
+- **Convenção do sinal BCB:** Índice maior = Real fraco (depreciado, exportações ganham); índice menor = Real forte (apreciado, importações ganham).
+- **Faixa histórica (últimos 20 anos):** Mínima ~70 (2011, Real muito valorizado); máxima ~145 (2002, 2021, pânico cambial); média histórica de longo prazo ~105-115.
+- **Bom (Equilíbrio):** 100 a 120 (faixa da média móvel histórica, câmbio não pressiona inflação, exportações competitivas sem estresse)
+- **Neutro (Desalinhamento moderado):** 85-100 ou 120-130 (fora do equilíbrio ideal, mas sem crise)
+- **Ruim (Desalinhamento Severo):** < 85 (Real excessivamente valorizado, desindustrialização) OU > 130 (Real excessivamente desvalorizado, choque inflacionário)
 
-*Referência: https://www.bcb.gov.br/estatisticas/tabelasespeciais*
+**Exemplos históricos:**
+- Bom: Junho 2019 (114,2) — câmbio neutro, inflação controlada
+- Ruim: Maio 2021 (138,5) — desvalorização pandêmica, choque inflacionário
+
+*Referência: https://www.bcb.gov.br/estatisticas/tabelasespeciais | Série SGS 11752*
 
 ---
 
 ## Resultado Primário do Governo (% PIB)
 
-**Fonte:** Tesouro Nacional - Secretaria de Política Econômica  
-**Documento:** Novo Arcabouço Fiscal (Lei Complementar nº 200/2023)
+**Fonte:** Tesouro Nacional — Secretaria de Política Econômica / BCB Série SGS 5793  
+**Documento:** Novo Arcabouço Fiscal (Lei Complementar nº 200/2023); IFI/Senado (Relatório de Acompanhamento Fiscal)
 
-- **Definição:** Saldo entre receitas primárias e despesas primárias (excluindo juros da dívida). Reflete esforço fiscal puro. Sob Regime Fiscal Sustentável, metas anuais com banda de tolerância ±0,25% do PIB.
-- **Meta 2025:** 0,0% do PIB (resultado nulo)
-- **Meta 2026:** +0,25% do PIB (superávit = ~R$ 34,3 bilhões)
-- **Bom:** Cumprimento no centro/limite superior da meta (superávit crescente, dinâmica da dívida reversível, risco-país cai)
-- **Neutro:** Resultado no piso da banda (conformidade jurídica, mas receita frágil)
-- **Ruim:** Descumprimento abaixo do limite inferior (défice insustentável > -0,25%, gatilhos contracionistas, risco de dominância fiscal)
+- **Definição:** Saldo entre receitas e despesas do governo, excluindo juros da dívida. Reflete esforço fiscal puro. Série 5793 do BCB: "Resultado Primário/PIB (fluxo acumulado 12 meses)".
+- **Metas legais (Arcabouço Fiscal):** Meta 2025 = 0,0% | Meta 2026 = +0,25% | Banda de tolerância = ±0,25% do PIB
+- **Realidade estrutural:** Com taxa de juros real ~6-7% e crescimento PIB ~2%, o diferencial r-g = ~4-5%. Para **estabilizar** a Dívida Bruta/PIB, exige-se primário estrutural de ~1,5%-2,0% do PIB. Um primário zero (lei) deixa dívida crescendo.
+- **Ruim:** < -0,25% (déficit fora da banda legal, aceleração da dívida)
+- **Neutro:** -0,25% a 1,0% (cumprimento da meta legal, mas insuficiente para estabilizar dívida estruturalmente)
+- **Bom:** > 1,0% (superávit caminhando para o nível estrutural necessário, dinâmica da dívida reversível)
 
-*Nota:** Dívida bruta estável exige primário estrutural de ~1,8% do PIB dado que taxa de juros real > crescimento econômico.
+**Exemplos históricos:**
+- Ruim: Dezembro 2023 (-2,1% do PIB) — déficit agravado por precatórios
+- Bom: Dezembro 2022 (+1,2% do PIB) — superávit (receitas extraordinárias + inflação alta)
 
-*Referência: https://www.tesourotransparente.gov.br/*
+*Referência: https://tesourotransparente.gov.br/ | https://www12.senado.leg.br/ifi (Relatório de Acompanhamento Fiscal) | BCB SGS série 5793*
 
 ---
 

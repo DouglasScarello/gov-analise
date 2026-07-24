@@ -150,50 +150,49 @@ const INDICADORES = {
   pib_taxa_crescimento: {
     nome: "PIB (taxa de crescimento)",
     unidade: "% a.a.",
-    explicacao: `Crescimento anual do Produto Interno Bruto. Mede se a economia está expandindo (acima de 1,5%) ou contraindo (abaixo de 0%). Comparar com taxa natural de 1,5%-2,0% a.a.`,
-    meta: { valor: 2, label: "Taxa natural ~1,5% a 2,0%" },
-    intervalo: { minBom: 2, maxBom: 4, label: "Acima de 2,0% é saudável" },
+    explicacao: `Taxa acumulada em 4 trimestres do Produto Interno Bruto. Mede se a economia está expandindo estruturalmente. PIB potencial brasileiro estimado em 2,0%-2,5% a.a. pós-reformas (média 2014-2024: ~0,8% a.a., fortemente impactada por recessões). Comparar sempre contra a taxa natural.`,
+    meta: { valor: 2.5, label: "PIB potencial ~2,0%-2,5% a.a." },
+    intervalo: { minBom: 2.5, maxBom: 3.5, label: "Acima de 2,5% é expansão real" },
     interpretacao: (valor: number) => {
-      if (valor > 2) return { status: "bom", msg: "Crescimento acelerado. PIB acima da taxa natural, economia em expansão (se impulsionado por FBCF e produtividade)." };
-      if (valor >= 1.5) return { status: "bom", msg: "Crescimento sustentável. Alinhado ao PIB potencial estrutural da economia." };
-      if (valor >= 0) return { status: "neutro", msg: "Crescimento lento. Economia está crescendo, mas abaixo do potencial." };
-      return { status: "ruim", msg: "Recessão. PIB em contração. Economia retraindo, menos empregos, menos produção." };
+      if (valor > 2.5) return { status: "bom", msg: "Expansão real da economia. Crescimento acima do PIB potencial, fechamento de hiato do produto, economia em avanço estrutural." };
+      if (valor >= 1.5) return { status: "neutro", msg: "Crescimento sustentável. Alinhado ao PIB potencial, crescimento em linha com o potencial estimado, sem pressões de superaquecimento." };
+      return { status: "ruim", msg: "Abaixo do potencial / Estagnação. Economia crescendo abaixo do potencial ou em contração, próxima à estagnação da renda per capita, ociodade generalizada." };
     },
   },
   spread_bancario: {
     nome: "Spread Bancário",
     unidade: "%",
-    explicacao: `Diferença entre taxa de juros que você paga e o custo que o banco tem. Spread alto = crédito caro. Composto por: risco (~35%), custos (~25%), impostos (~20%), lucro (~15%).`,
-    meta: { valor: 22, label: "Faixa histórica típica" },
-    intervalo: { minBom: 15, maxBom: 25, label: "20% a 25% é tolerável" },
+    explicacao: `Diferença entre taxa média de juros cobrada (aplicação) e custo de captação de crédito livre. Spread alto = crédito caro. Decomposição: risco/inadimplência (~35-37%), custos administrativos (~25%), tributos/FGC (~20%), margem do banco (~15-19%). Brasil tem um dos maiores spreads do mundo (~28% média histórica).`,
+    meta: { valor: 26, label: "Média histórica recente" },
+    intervalo: { minBom: 20, maxBom: 30, label: "Entre 20% e 30% é histórico" },
     interpretacao: (valor: number) => {
-      if (valor < 20) return { status: "bom", msg: "Spread baixo. Crédito mais acessível, economia em fase de expansão com concorrência saudável." };
-      if (valor <= 25) return { status: "neutro", msg: "Spread normal. Faixa histórica do Brasil, sistema financeiro resiliente apesar do risco alto." };
-      return { status: "ruim", msg: "Spread muito alto (>25%). Crédito asfixiante, economia em contração, risco de crédito elevado." };
+      if (valor < 24) return { status: "bom", msg: "Spread baixo. Ambiente de liquidez sustentável, economia em fase de expansão creditícia, concorrência saudável, redução de risco de crédito." };
+      if (valor <= 30) return { status: "neutro", msg: "Spread na faixa histórica normal (~24%-30%). Sistema financeiro resiliente apesar do risco de crédito elevado, típico do Brasil." };
+      return { status: "ruim", msg: "Spread em nível de estresse (>30%). Crédito asfixiante, economia em contração, Selic elevada, alta inadimplência." };
     },
   },
   taxa_cambio_real_efetiva: {
     nome: "Taxa de Câmbio Real Efetiva (TCRE)",
-    unidade: "Índice (2010=100)",
-    explicacao: `Mede a competitividade do Brasil em relação a ~23 parceiros comerciais, ajustada pela inflação. Acima de 100 = moeda fraca (exportações ganham). Abaixo de 100 = moeda forte (importações ganham).`,
-    meta: { valor: 100, label: "Nível de equilíbrio" },
-    intervalo: { minBom: 95, maxBom: 110, label: "Entre 95 e 110 é saudável" },
+    unidade: "Índice (jun/1994=100)",
+    explicacao: `Índice de competitividade do Brasil vs. ~23-24 parceiros comerciais, ajustado por diferenciais de inflação (IPCA vs. CPI exterior). Base: junho/1994=100. Acima de 100 = Real fraco (exportações mais competitivas). Abaixo de 100 = Real forte (importações ganham). Faixa histórica: 70-145; média de longo prazo: 105-115.`,
+    meta: { valor: 110, label: "Faixa histórica equilibrada" },
+    intervalo: { minBom: 100, maxBom: 120, label: "Entre 100 e 120 é equilíbrio" },
     interpretacao: (valor: number) => {
-      if (valor > 105) return { status: "bom", msg: "Moeda fraca (depreciada). Exportações competitivas, indústria protegida de importados, ganho de market share global." };
-      if (valor >= 95) return { status: "neutro", msg: "Moeda em equilíbrio. Câmbio real na paridade, contas externas sustentáveis, sem distorções." };
-      return { status: "ruim", msg: "Moeda forte (apreciada). Exportações caras, importados baratos, perda competitiva, risco de desindustrialização." };
+      if (valor >= 100 && valor <= 120) return { status: "bom", msg: "Câmbio em equilíbrio. Faixa da média móvel histórica, Real nem muito forte nem muito fraco, câmbio não pressiona inflação, exportações competitivas sem estresse." };
+      if ((valor >= 85 && valor < 100) || (valor > 120 && valor <= 130)) return { status: "neutro", msg: "Desalinhamento moderado. Fora da faixa ideal de equilíbrio, mas sem crise cambial ou inflacionária severa." };
+      return { status: "ruim", msg: "Desalinhamento severo. Real excessivamente valorizado (<85) causando desindustrialização, OU excessivamente desvalorizado (>130) causando choque inflacionário e estresse." };
     },
   },
   resultado_primario_governo: {
     nome: "Resultado Primário do Governo (% PIB)",
     unidade: "% do PIB",
-    explicacao: `Saldo entre receitas e despesas do governo, excluindo juros. Superávit = governo ganha dinheiro, reduz dívida. Déficit = governo gasta mais que arrecada, aumenta dívida. Meta 2025: 0% | Meta 2026: +0,25%`,
-    meta: { valor: 0, label: "Meta 2025: 0,0% | Meta 2026: +0,25%" },
-    intervalo: { minBom: 0.25, maxBom: 2, label: "Superávit de 0,25% a 2,0% é bom" },
+    explicacao: `Saldo entre receitas e despesas primárias (excluindo juros). Superávit = governo reduz dívida; Déficit = dívida cresce. Metas Arcabouço Fiscal 2025: 0% (banda ±0,25%), 2026: +0,25%. Para estabilizar dívida estruturalmente, exige ~1,5%-2,0% do PIB (r-g>0 atual).`,
+    meta: { valor: 1.0, label: "Superávit estrutural necessário ~1,5%-2,0%" },
+    intervalo: { minBom: 1.0, maxBom: 2, label: "Acima de 1,0% estabiliza dívida" },
     interpretacao: (valor: number) => {
-      if (valor > 0.25) return { status: "bom", msg: "Superávit forte. Governo gerando poupança, dinâmica de dívida reversível, risco-país em queda." };
-      if (valor >= -0.25) return { status: "neutro", msg: "Resultado dentro da banda de tolerância (±0,25%). Conformidade com Arcabouço Fiscal, contas estáveis." };
-      return { status: "ruim", msg: "Déficit insustentável. Governo gasta mais que arrecada, gatilhos de austeridade acionados, dívida acelerando." };
+      if (valor > 1.0) return { status: "bom", msg: "Superávit em nível estrutural. Governo reversendo dinâmica de dívida, poupança crescente, risco-país caindo, sustentabilidade fiscal." };
+      if (valor >= -0.25) return { status: "neutro", msg: "Dentro da meta legal (Arcabouço Fiscal). Conformidade jurídica até o limite inferior da banda (±0,25%), mas insuficiente para estabilizar dívida bruta no longo prazo." };
+      return { status: "ruim", msg: "Déficit acelerado (< -0,25%). Fora da banda legal, gatilhos de contenção fiscal acionados, dívida acelerando, risco de dominância fiscal." };
     },
   },
   pib_uf: {

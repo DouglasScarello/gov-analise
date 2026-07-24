@@ -6,7 +6,7 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 
-from ..db import CONTRATOCONTRATO_HASH_ID, paginar, query_one
+from ..db import CONTRATO_HASH_ID, paginar, query_one
 
 router = APIRouter(prefix="/contratos", tags=["contratos"])
 

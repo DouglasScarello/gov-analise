@@ -17,6 +17,10 @@ const SERIES_CONFIG = [
   { chave: "dolar_ptax_compra", titulo: "Dólar (compra)", unidade: "R$", seção: "Câmbio", semântica: "neutro" as const },
   { chave: "taxa_desocupacao_pnad", titulo: "Desocupação (PNAD)", unidade: "%", seção: "Mercado de Trabalho", semântica: "melhor_queda" as const },
   { chave: "ibc_br", titulo: "IBC-Br (atividade)", unidade: "", seção: "Atividade Econômica", semântica: "melhor_alta" as const },
+  { chave: "pib_taxa_crescimento", titulo: "PIB (taxa de crescimento)", unidade: "% a.a.", seção: "Atividade Econômica", semântica: "melhor_alta" as const },
+  { chave: "spread_bancario", titulo: "Spread Bancário", unidade: "%", seção: "Sistema Financeiro", semântica: "melhor_queda" as const },
+  { chave: "taxa_cambio_real_efetiva", titulo: "Taxa de Câmbio Real", unidade: "Índice", seção: "Câmbio", semântica: "neutro" as const },
+  { chave: "resultado_primario_governo", titulo: "Resultado Primário", unidade: "% PIB", seção: "Contas Públicas", semântica: "melhor_alta" as const },
   { chave: "balanca_comercial_saldo", titulo: "Balança Comercial", unidade: "US$ bi", seção: "Câmbio", semântica: "melhor_alta" as const },
   { chave: "reservas_internacionais", titulo: "Reservas (US$)", unidade: "US$ bi", seção: "Câmbio", semântica: "melhor_alta" as const },
   { chave: "divida_liquida_setor_publico_pct_pib", titulo: "Dívida Líquida", unidade: "% PIB", seção: "Contas Públicas", semântica: "melhor_queda" as const },
@@ -27,7 +31,7 @@ const INDICADORES_UF = [
   { chave: "populacao_estimada_uf", titulo: "População", unidade: "" },
 ] as const;
 
-const SECOES = ["Preços", "Atividade Econômica", "Mercado de Trabalho", "Câmbio", "Contas Públicas"] as const;
+const SECOES = ["Preços", "Atividade Econômica", "Mercado de Trabalho", "Sistema Financeiro", "Câmbio", "Contas Públicas"] as const;
 
 export default async function EconomiaPage() {
   const [seriesRaw, indicadoresRaw] = await Promise.all([
