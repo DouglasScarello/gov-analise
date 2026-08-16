@@ -11,7 +11,7 @@ from urllib3.util.retry import Retry
 
 # Configurações da API CMF (Fallback)
 BASE_URL_CMF = "https://www.cmf.sc.gov.br/jsonweb/web-aplicativo.php"
-TOKEN_CMF = "***REMOVED-SEE-ENV***"
+TOKEN_CMF = os.environ.get("TOKEN_CMF", "")
 
 class MunicipalLoader:
     """
